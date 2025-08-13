@@ -1,0 +1,71 @@
+<div class="group-list-container">
+  <div class="header">
+    <h2>My Groups</h2>
+    <button mat-raised-button color="primary" (click)="openAddGroupDialog()">
+      <mat-icon>add</mat-icon>
+      Create Group
+    </button>
+  </div>
+
+  <div class="content" *ngIf="!loading; else loadingSpinner">
+    <div class="groups-grid" *ngIf="groups.length > 0; else noGroups">
+      <mat-card class="group-card" *ngFor="let group of groups">
+        <mat-card-header>
+          <mat-card-title>{{ group.name }}</mat-card-title>
+          <mat-card-subtitle *ngIf="group.description">{{ group.description }}</mat-card-subtitle>
+        </mat-card-header>
+        
+        <mat-card-content>
+          <div class="group-stats">
+            <div class="stat">
+              <mat-icon>people</mat-icon>
+              <span>{{ getMemberCount(group) }} members</span>
+            </div>
+            <div class="stat">
+              <mat-icon>receipt</mat-icon>
+              <span>{{ getExpenseCount(group) }} expenses</span>
+            </div>
+          </div>
+          
+          <div class="group-members" *ngIf="group.members && group.members.length > 0">
+            <strong>Members:</strong>
+            <div class="member-list">
+              <span class="member" *ngFor="let member of group.members">
+                {{ member.firstName }} {{ member.lastName }}
+              </span>
+            </div>
+          </div>
+        </mat-card-content>
+        
+        <mat-card-actions>
+          <button mat-button color="primary" [routerLink]="['/dashboard/expenses']" [queryParams]="{groupId: group.id}">
+            <mat-icon>receipt</mat-icon>
+            View Expenses
+          </button>
+          <button mat-button color="warn" (click)="deleteGroup(group.id!)">
+            <mat-icon>delete</mat-icon>
+            Delete
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+  </div>
+
+  <ng-template #loadingSpinner>
+    <div class="loading-container">
+      <mat-spinner></mat-spinner>
+      <p>Loading groups...</p>
+    </div>
+  </ng-template>
+
+  <ng-template #noGroups>
+    <div class="no-groups">
+      <mat-icon class="no-groups-icon">group</mat-icon>
+      <h3>No groups yet</h3>
+      <p>Create your first group to start splitting expenses with friends and family.</p>
+      <button mat-raised-button color="primary" (click)="openAddGroupDialog()">
+        Create Your First Group
+      </button>
+    </div>
+  </ng-template>
+</div>

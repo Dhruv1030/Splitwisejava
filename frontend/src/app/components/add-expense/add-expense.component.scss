@@ -1,0 +1,129 @@
+.add-expense-dialog {
+  min-width: 500px;
+}
+
+h2[mat-dialog-title] {
+  margin: 0;
+  color: #333;
+  font-size: 1.5rem;
+}
+
+.form-field {
+  margin-bottom: 20px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.group-info {
+  background-color: #f5f5f5;
+  padding: 16px;
+  border-radius: 4px;
+  margin: 20px 0;
+}
+
+.group-info h4 {
+  margin: 0 0 8px 0;
+  color: #333;
+  font-size: 1.1rem;
+}
+
+.group-info p {
+  margin: 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.shares-section {
+  margin: 20px 0;
+}
+
+.shares-section h4 {
+  margin: 0 0 16px 0;
+  color: #333;
+  font-size: 1.1rem;
+}
+
+.shares-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.share-item {
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 16px;
+  background-color: #fafafa;
+}
+
+.share-header {
+  margin-bottom: 12px;
+}
+
+.member-name {
+  font-weight: 600;
+  color: #333;
+  font-size: 1rem;
+}
+
+.share-inputs {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.amount-input {
+  flex: 1;
+  min-width: 150px;
+}
+
+.percentage-input {
+  flex: 1;
+  min-width: 150px;
+}
+
+.info-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px;
+  background-color: #e3f2fd;
+  border-radius: 4px;
+  margin-top: 16px;
+  font-size: 0.9rem;
+  color: #1976d2;
+}
+
+.info-note mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: #1976d2;
+  margin-top: 2px;
+}
+
+mat-dialog-actions {
+  padding: 16px 0 0 0;
+  margin: 0;
+}
+
+mat-dialog-actions button {
+  margin-left: 8px;
+}
+
+@media (max-width: 600px) {
+  .add-expense-dialog {
+    min-width: 300px;
+  }
+  
+  .share-inputs {
+    flex-direction: column;
+  }
+  
+  .amount-input,
+  .percentage-input {
+    min-width: auto;
+  }
+}

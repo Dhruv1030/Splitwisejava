@@ -1,0 +1,145 @@
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ExpenseService } from '../../services/expense.service';
+import { GroupService } from '../../services/group.service';
+import { AuthService } from '../../services/auth.service';
+import { Expense, ExpenseDto } from '../../models/expense.model';
+import { Group } from '../../models/group.model';
+import { User } from '../../models/user.model';
+import { AddExpenseComponent } from '../add-expense/add-expense.component';
+
+@Component({
+  selector: 'app-expense-list',
+  templateUrl: './expense-list.component.html',
+  styleUrls: ['./expense-list.component.scss']
+})
+export class ExpenseListComponent implements OnInit {
+  expenses: Expense[] = [];
+  groups: Group[] = [];
+  currentUser: User | null = null;
+  selectedGroupId: number | null = null;
+  loading = false;
+  displayedColumns: string[] = ['description', 'amount', 'paidBy', 'splitType', 'date', 'actions'];
+
+  constructor(
+    private expenseService: ExpenseService,
+    private groupService: GroupService,
+    private authService: AuthService,
+    private route: ActivatedRoute,
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar
+  ) { }
+
+  ngOnInit(): void {
+    this.currentUser = this.authService.getCurrentUser();
+    this.loadGroups();
+    
+    // Check if groupId is passed via query params
+    this.route.queryParams.subscribe(params => {
+      if (params['groupId']) {
+        this.selectedGroupId = +params['groupId'];
+        this.loadExpenses();
+      }
+    });
+  }
+
+  loadGroups(): void {
+    if (!this.currentUser) return;
+    
+    this.groupService.getGroupsByUserId(this.currentUser.id!).subscribe({
+      next: (groups) => {
+        this.groups = groups;
+      },
+      error: (error) => {
+        console.error('Error loading groups:', error);
+        this.snackBar.open('Error loading groups', 'Close', { duration: 3000 });
+      }
+    });
+  }
+
+  loadExpenses(): void {
+    if (!this.selectedGroupId) return;
+    
+    this.loading = true;
+    this.expenseService.getExpensesByGroupId(this.selectedGroupId).subscribe({
+      next: (expenses) => {
+        this.expenses = expenses;
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error loading expenses:', error);
+        this.snackBar.open('Error loading expenses', 'Close', { duration: 3000 });
+        this.loading = false;
+      }
+    });
+  }
+
+  onGroupChange(): void {
+    this.loadExpenses();
+  }
+
+  openAddExpenseDialog(): void {
+    if (!this.selectedGroupId) {
+      this.snackBar.open('Please select a group first', 'Close', { duration: 3000 });
+      return;
+    }
+
+    const selectedGroup = this.groups.find(g => g.id === this.selectedGroupId);
+    if (!selectedGroup) return;
+
+    const dialogRef = this.dialog.open(AddExpenseComponent, {
+      width: '600px',
+      data: { 
+        currentUser: this.currentUser,
+        selectedGroup: selectedGroup
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.loadExpenses();
+        this.snackBar.open('Expense added successfully!', 'Close', { duration: 3000 });
+      }
+    });
+  }
+
+  deleteExpense(expenseId: number): void {
+    if (confirm('Are you sure you want to delete this expense?')) {
+      this.expenseService.deleteExpense(expenseId).subscribe({
+        next: () => {
+          this.loadExpenses();
+          this.snackBar.open('Expense deleted successfully!', 'Close', { duration: 3000 });
+        },
+        error: (error) => {
+          console.error('Error deleting expense:', error);
+          this.snackBar.open('Error deleting expense', 'Close', { duration: 3000 });
+        }
+      });
+    }
+  }
+
+  getExpenseTotal(expense: Expense): number {
+    return expense.shares ? expense.shares.reduce((sum, share) => sum + share.amount, 0) : 0;
+  }
+
+  getExpenseShares(expense: Expense): string {
+    if (!expense.shares || expense.shares.length === 0) return '';
+    
+    return expense.shares
+      .map(share => `${share.user?.firstName} ${share.user?.lastName}: $${share.amount}`)
+      .join(', ');
+  }
+
+  formatDate(date: Date | string): string {
+    return new Date(date).toLocaleDateString();
+  }
+
+  formatCurrency(amount: number): string {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD'
+    }).format(amount);
+  }
+}

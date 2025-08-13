@@ -1,0 +1,106 @@
+<div class="expense-list-container">
+  <div class="header">
+    <h2>Expenses</h2>
+    <div class="header-controls">
+      <mat-form-field appearance="outline" class="group-selector">
+        <mat-label>Select Group</mat-label>
+        <mat-select [(value)]="selectedGroupId" (selectionChange)="onGroupChange()">
+          <mat-option *ngFor="let group of groups" [value]="group.id">
+            {{ group.name }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      
+      <button mat-raised-button color="primary" 
+              (click)="openAddExpenseDialog()"
+              [disabled]="!selectedGroupId">
+        <mat-icon>add</mat-icon>
+        Add Expense
+      </button>
+    </div>
+  </div>
+
+  <div class="content" *ngIf="!loading; else loadingSpinner">
+    <div class="expenses-table" *ngIf="selectedGroupId && expenses.length > 0; else noExpenses">
+      <table mat-table [dataSource]="expenses" class="mat-elevation-z1">
+        <!-- Description Column -->
+        <ng-container matColumnDef="description">
+          <th mat-header-cell *matHeaderCellDef>Description</th>
+          <td mat-cell *matCellDef="let expense">{{ expense.description }}</td>
+        </ng-container>
+
+        <!-- Amount Column -->
+        <ng-container matColumnDef="amount">
+          <th mat-header-cell *matHeaderCellDef>Amount</th>
+          <td mat-cell *matCellDef="let expense">{{ formatCurrency(expense.amount) }}</td>
+        </ng-container>
+
+        <!-- Paid By Column -->
+        <ng-container matColumnDef="paidBy">
+          <th mat-header-cell *matHeaderCellDef>Paid By</th>
+          <td mat-cell *matCellDef="let expense">
+            {{ expense.paidBy?.firstName }} {{ expense.paidBy?.lastName }}
+          </td>
+        </ng-container>
+
+        <!-- Split Type Column -->
+        <ng-container matColumnDef="splitType">
+          <th mat-header-cell *matHeaderCellDef>Split Type</th>
+          <td mat-cell *matCellDef="let expense">{{ expense.splitType }}</td>
+        </ng-container>
+
+        <!-- Date Column -->
+        <ng-container matColumnDef="date">
+          <th mat-header-cell *matHeaderCellDef>Date</th>
+          <td mat-cell *matCellDef="let expense">{{ formatDate(expense.date!) }}</td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Actions</th>
+          <td mat-cell *matCellDef="let expense">
+            <button mat-icon-button color="warn" (click)="deleteExpense(expense.id!)" 
+                    matTooltip="Delete Expense">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+
+      <div class="expense-details" *ngFor="let expense of expenses">
+        <div class="expense-shares" *ngIf="expense.shares && expense.shares.length > 0">
+          <strong>Split Details:</strong> {{ getExpenseShares(expense) }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #loadingSpinner>
+    <div class="loading-container">
+      <mat-spinner></mat-spinner>
+      <p>Loading expenses...</p>
+    </div>
+  </ng-template>
+
+  <ng-template #noExpenses>
+    <div class="no-expenses" *ngIf="selectedGroupId; else noGroupSelected">
+      <mat-icon class="no-expenses-icon">receipt</mat-icon>
+      <h3>No expenses yet</h3>
+      <p>Start adding expenses to this group to track shared costs.</p>
+      <button mat-raised-button color="primary" (click)="openAddExpenseDialog()">
+        Add Your First Expense
+      </button>
+    </div>
+  </ng-template>
+
+  <ng-template #noGroupSelected>
+    <div class="no-group-selected">
+      <mat-icon class="no-group-icon">group</mat-icon>
+      <h3>Select a Group</h3>
+      <p>Choose a group from the dropdown above to view and manage expenses.</p>
+    </div>
+  </ng-template>
+</div>

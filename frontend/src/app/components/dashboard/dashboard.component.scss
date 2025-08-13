@@ -1,0 +1,72 @@
+.dashboard-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-toolbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+}
+
+.toolbar-title {
+  font-size: 1.5rem;
+  font-weight: 500;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.user-info {
+  margin-right: 16px;
+  font-size: 0.9rem;
+}
+
+.dashboard-content {
+  flex: 1;
+  margin-top: 64px;
+}
+
+.sidenav-container {
+  height: 100%;
+}
+
+.sidenav {
+  width: 250px;
+}
+
+.sidenav-content {
+  padding: 20px;
+}
+
+.content-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.active-link {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+mat-nav-list a {
+  text-decoration: none;
+  color: inherit;
+}
+
+mat-nav-list a:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+@media (max-width: 768px) {
+  .sidenav {
+    width: 200px;
+  }
+  
+  .sidenav-content {
+    padding: 16px;
+  }
+}
