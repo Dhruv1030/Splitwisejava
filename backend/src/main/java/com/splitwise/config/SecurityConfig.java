@@ -26,14 +26,13 @@ public class SecurityConfig {
                 .csrf().disable()
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/api/users/register", "/api/auth/login", "/h2-console/**", "/api/groups/**",
+                        .requestMatchers("/api/users/register", "/api/auth/login", "/api/groups/**",
                                 "/api/expenses/**", "/api/users/**")
                         .permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .headers().frameOptions().disable(); // For H2 console
+                .and();
 
         return http.build();
     }

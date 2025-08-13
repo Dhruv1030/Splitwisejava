@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -38,6 +39,7 @@ public class User {
     private String lastName;
 
     @ManyToMany(mappedBy = "members")
+    @JsonIgnore
     private Set<Group> groups = new HashSet<>();
 
     @OneToMany(mappedBy = "paidBy")
