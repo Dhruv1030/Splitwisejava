@@ -1,50 +1,66 @@
 <div class="add-group-dialog">
-  <h2 mat-dialog-title>Create New Group</h2>
+  <div class="dialog-header">
+    <i class="fas fa-users header-icon"></i>
+    <h2>Create New Group</h2>
+  </div>
   
   <form [formGroup]="groupForm" (ngSubmit)="onSubmit()">
-    <mat-dialog-content>
+    <div class="dialog-content">
       <div class="form-field">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Group Name</mat-label>
-          <input matInput formControlName="name" placeholder="Enter group name">
-          <mat-error *ngIf="groupForm.get('name')?.hasError('required')">
-            Group name is required
-          </mat-error>
-          <mat-error *ngIf="groupForm.get('name')?.hasError('minlength')">
-            Group name must be at least 1 character
-          </mat-error>
-          <mat-error *ngIf="groupForm.get('name')?.hasError('maxlength')">
-            Group name cannot exceed 100 characters
-          </mat-error>
-        </mat-form-field>
+        <label for="groupName" class="form-label">Group Name *</label>
+        <input 
+          type="text"
+          id="groupName"
+          formControlName="name" 
+          placeholder="Enter group name"
+          class="form-input"
+          (input)="onFormChange()"
+          [class.invalid]="groupForm.get('name')?.invalid && groupForm.get('name')?.touched">
+        <small class="error-message" *ngIf="groupForm.get('name')?.invalid && groupForm.get('name')?.touched">
+          <i class="fas fa-exclamation-triangle"></i>
+          <span *ngIf="groupForm.get('name')?.hasError('required')">Group name is required</span>
+          <span *ngIf="groupForm.get('name')?.hasError('minlength')">Group name must be at least 1 character</span>
+          <span *ngIf="groupForm.get('name')?.hasError('maxlength')">Group name cannot exceed 100 characters</span>
+        </small>
       </div>
 
       <div class="form-field">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Description (Optional)</mat-label>
-          <textarea matInput formControlName="description" 
-                    placeholder="Enter group description" 
-                    rows="3"></textarea>
-          <mat-error *ngIf="groupForm.get('description')?.hasError('maxlength')">
-            Description cannot exceed 500 characters
-          </mat-error>
-        </mat-form-field>
+        <label for="groupDescription" class="form-label">Description (Optional)</label>
+        <textarea 
+          id="groupDescription"
+          formControlName="description" 
+          placeholder="Enter group description" 
+          rows="4"
+          class="form-textarea"
+          [class.invalid]="groupForm.get('description')?.invalid && groupForm.get('description')?.touched">
+        </textarea>
+        <small class="error-message" *ngIf="groupForm.get('description')?.invalid && groupForm.get('description')?.touched">
+          <i class="fas fa-exclamation-triangle"></i>
+          <span *ngIf="groupForm.get('description')?.hasError('maxlength')">Description cannot exceed 500 characters</span>
+        </small>
       </div>
 
       <div class="info-note">
-        <mat-icon>info</mat-icon>
+        <i class="fas fa-info-circle"></i>
         <span>You will be automatically added as a member of this group.</span>
       </div>
-    </mat-dialog-content>
+    </div>
 
-    <mat-dialog-actions align="end">
-      <button mat-button type="button" (click)="onCancel()">Cancel</button>
-      <button mat-raised-button color="primary" type="submit" 
-              [disabled]="groupForm.invalid || loading">
-        <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
-        <span *ngIf="!loading">Create Group</span>
-        <span *ngIf="loading">Creating...</span>
+    <div class="dialog-actions">
+      <button 
+        type="button" 
+        class="btn btn-secondary"
+        (click)="onCancel()">
+        Cancel
       </button>
-    </mat-dialog-actions>
+      
+      <button 
+        type="submit" 
+        class="btn btn-primary"
+        [disabled]="groupForm.invalid || loading">
+        <i *ngIf="loading" class="fas fa-spinner fa-spin"></i>
+        <span>Create Group</span>
+      </button>
+    </div>
   </form>
 </div>

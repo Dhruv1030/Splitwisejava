@@ -24,14 +24,17 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
+import { InputTextareaModule } from 'primeng/inputtextarea';
 import { DropdownModule } from 'primeng/dropdown';
 import { TableModule } from 'primeng/table';
 import { DialogModule } from 'primeng/dialog';
+import { DynamicDialogModule } from 'primeng/dynamicdialog';
 import { ToastModule } from 'primeng/toast';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { DividerModule } from 'primeng/divider';
 import { BadgeModule } from 'primeng/badge';
 import { ChipModule } from 'primeng/chip';
+import { TooltipModule } from 'primeng/tooltip';
 
 import { AppComponent } from './app.component';
 import { LoginComponent } from './components/login/login.component';
@@ -43,6 +46,8 @@ import { AddExpenseComponent } from './components/add-expense/add-expense.compon
 import { AddGroupComponent } from './components/add-group/add-group.component';
 import { ConfirmationDialogComponent } from './components/confirmation-dialog/confirmation-dialog.component';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
+import { MessageService } from 'primeng/api';
+import { DialogService } from 'primeng/dynamicdialog';
 
 import { AppRoutingModule } from './app-routing.module';
 
@@ -84,21 +89,26 @@ import { AppRoutingModule } from './app-routing.module';
     CardModule,
     InputTextModule,
     InputNumberModule,
+    InputTextareaModule,
     DropdownModule,
     TableModule,
     DialogModule,
+    DynamicDialogModule,
     ToastModule,
     ProgressSpinnerModule,
     DividerModule,
     BadgeModule,
-    ChipModule
+    ChipModule,
+    TooltipModule
   ],
   providers: [
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
       multi: true
-    }
+    },
+    MessageService,
+    DialogService
   ],
   bootstrap: [AppComponent]
 })

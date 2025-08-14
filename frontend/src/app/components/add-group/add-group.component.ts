@@ -1,7 +1,7 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { DynamicDialogRef, DynamicDialogConfig } from 'primeng/dynamicdialog';
+import { MessageService } from 'primeng/api';
 import { GroupService } from '../../services/group.service';
 import { GroupDto } from '../../models/group.model';
 import { User } from '../../models/user.model';
@@ -19,11 +19,11 @@ export class AddGroupComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private groupService: GroupService,
-    private dialogRef: MatDialogRef<AddGroupComponent>,
-    private snackBar: MatSnackBar,
-    @Inject(MAT_DIALOG_DATA) public data: { currentUser: User }
+    private dialogRef: DynamicDialogRef,
+    private config: DynamicDialogConfig,
+    private messageService: MessageService
   ) {
-    this.currentUser = data.currentUser;
+    this.currentUser = config.data.currentUser;
   }
 
   ngOnInit(): void {
@@ -34,6 +34,13 @@ export class AddGroupComponent implements OnInit {
     this.groupForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(100)]],
       description: ['', [Validators.maxLength(500)]]
+    });
+
+    // Debug form validation
+    this.groupForm.statusChanges.subscribe(status => {
+      console.log('Form status:', status);
+      console.log('Form valid:', this.groupForm.valid);
+      console.log('Name field:', this.groupForm.get('name')?.value, this.groupForm.get('name')?.valid);
     });
   }
 
@@ -48,18 +55,22 @@ export class AddGroupComponent implements OnInit {
       this.groupService.createGroup(groupDto).subscribe({
         next: (group) => {
           this.loading = false;
-          this.snackBar.open('Group created successfully!', 'Close', { 
-            duration: 3000,
-            panelClass: ['success-snackbar']
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: 'Group created successfully!',
+            life: 3000
           });
           this.dialogRef.close(group);
         },
         error: (error) => {
           this.loading = false;
           console.error('Error creating group:', error);
-          this.snackBar.open('Failed to create group. Please try again.', 'Close', { 
-            duration: 4000,
-            panelClass: ['error-snackbar']
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Failed to create group. Please try again.',
+            life: 4000
           });
         }
       });
@@ -68,6 +79,11 @@ export class AddGroupComponent implements OnInit {
 
   onCancel(): void {
     this.dialogRef.close();
+  }
+
+  onFormChange(): void {
+    // Trigger change detection for form validation
+    this.groupForm.updateValueAndValidity();
   }
 
   getErrorMessage(fieldName: string): string {

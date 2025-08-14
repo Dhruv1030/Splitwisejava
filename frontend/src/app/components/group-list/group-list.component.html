@@ -1,71 +1,139 @@
 <div class="group-list-container">
-  <div class="header">
-    <h2>My Groups</h2>
-    <button mat-raised-button color="primary" (click)="openAddGroupDialog()">
-      <mat-icon>add</mat-icon>
-      Create Group
-    </button>
-  </div>
-
-  <div class="content" *ngIf="!loading; else loadingSpinner">
-    <div class="groups-grid" *ngIf="groups.length > 0; else noGroups">
-      <mat-card class="group-card" *ngFor="let group of groups">
-        <mat-card-header>
-          <mat-card-title>{{ group.name }}</mat-card-title>
-          <mat-card-subtitle *ngIf="group.description">{{ group.description }}</mat-card-subtitle>
-        </mat-card-header>
-        
-        <mat-card-content>
-          <div class="group-stats">
-            <div class="stat">
-              <mat-icon>people</mat-icon>
-              <span>{{ getMemberCount(group) }} members</span>
-            </div>
-            <div class="stat">
-              <mat-icon>receipt</mat-icon>
-              <span>{{ getExpenseCount(group) }} expenses</span>
-            </div>
-          </div>
-          
-          <div class="group-members" *ngIf="group.members && group.members.length > 0">
-            <strong>Members:</strong>
-            <div class="member-list">
-              <span class="member" *ngFor="let member of group.members">
-                {{ member.firstName }} {{ member.lastName }}
-              </span>
-            </div>
-          </div>
-        </mat-card-content>
-        
-        <mat-card-actions>
-          <button mat-button color="primary" [routerLink]="['/dashboard/expenses']" [queryParams]="{groupId: group.id}">
-            <mat-icon>receipt</mat-icon>
-            View Expenses
-          </button>
-          <button mat-button color="warn" (click)="deleteGroup(group.id!)">
-            <mat-icon>delete</mat-icon>
-            Delete
-          </button>
-        </mat-card-actions>
-      </mat-card>
+  <div class="header-section">
+    <div class="header-left">
+      <i class="pi pi-users header-icon"></i>
+      <h2>My Groups</h2>
     </div>
+    <p-button 
+      icon="pi pi-plus" 
+      severity="primary" 
+      (onClick)="openAddGroupDialog()"
+      label="Create Group">
+    </p-button>
   </div>
 
-  <ng-template #loadingSpinner>
+  <div class="content-section" *ngIf="!loading; else loadingTemplate">
+    <p-table 
+      [value]="groups" 
+      [paginator]="true" 
+      [rows]="10"
+      [showCurrentPageReport]="true"
+      [tableStyle]="{'min-width': '100%', 'max-width': '100%'}"
+      [rowsPerPageOptions]="[5, 10, 25, 50]"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} groups"
+      [globalFilterFields]="['name', 'description']"
+      styleClass="p-datatable-sm"
+      [scrollable]="true"
+      scrollHeight="400px">
+      
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="name" style="width:30%">
+            Group Name
+            <p-sortIcon field="name"></p-sortIcon>
+          </th>
+          <th pSortableColumn="description" style="width:40%">
+            Description
+            <p-sortIcon field="description"></p-sortIcon>
+          </th>
+          <th pSortableColumn="memberCount" style="width:15%">
+            Members
+            <p-sortIcon field="memberCount"></p-sortIcon>
+          </th>
+          <th pSortableColumn="expenseCount" style="width:15%">
+            Expenses
+            <p-sortIcon field="expenseCount"></p-sortIcon>
+          </th>
+          <th style="width:10%">Actions</th>
+        </tr>
+        <tr>
+          <th>
+            <p-columnFilter type="text" field="name" placeholder="Search by name"></p-columnFilter>
+          </th>
+          <th>
+            <p-columnFilter type="text" field="description" placeholder="Search by description"></p-columnFilter>
+          </th>
+          <th></th>
+          <th></th>
+          <th></th>
+        </tr>
+      </ng-template>
+      
+      <ng-template pTemplate="body" let-group>
+        <tr>
+          <td>
+            <div class="group-name">
+              <i class="pi pi-users group-icon"></i>
+              <span class="name-text">{{ group.name }}</span>
+            </div>
+          </td>
+          <td>
+            <span class="description-text">{{ group.description || 'No description' }}</span>
+          </td>
+          <td>
+            <p-chip 
+              [label]="getMemberCount(group).toString()" 
+              icon="pi pi-users" 
+              severity="info">
+            </p-chip>
+          </td>
+          <td>
+            <p-chip 
+              [label]="getExpenseCount(group).toString()" 
+              icon="pi pi-credit-card" 
+              severity="success">
+            </p-chip>
+          </td>
+          <td>
+            <div class="action-buttons">
+              <p-button 
+                icon="pi pi-eye" 
+                severity="secondary" 
+                text 
+                size="small"
+                [routerLink]="['/dashboard/expenses']" 
+                [queryParams]="{groupId: group.id}"
+                pTooltip="View Expenses">
+              </p-button>
+              <p-button 
+                icon="pi pi-trash" 
+                severity="danger" 
+                text 
+                size="small"
+                (onClick)="deleteGroup(group.id!)"
+                pTooltip="Delete Group">
+              </p-button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="5" class="empty-message">
+            <div class="no-groups">
+              <i class="pi pi-group-off"></i>
+              <h3>No groups yet</h3>
+              <p>Create your first group to start splitting expenses with friends and family.</p>
+              <p-button 
+                icon="pi pi-plus" 
+                severity="primary" 
+                (onClick)="openAddGroupDialog()"
+                label="Create Your First Group">
+              </p-button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <ng-template #loadingTemplate>
     <div class="loading-container">
-      <mat-spinner></mat-spinner>
+      <div class="loading-spinner">
+        <i class="pi pi-spin pi-spinner" style="font-size: 2rem; color: #667eea;"></i>
+      </div>
       <p>Loading groups...</p>
-    </div>
-  </ng-template>
-
-  <ng-template #noGroups>
-    <div class="no-groups">
-      <mat-icon class="no-groups-icon">group</mat-icon>
-      <h3>No groups yet</h3>
-      <p>Create your first group to start splitting expenses with friends and family.</p>
-      <button mat-raised-button color="primary" (click)="openAddGroupDialog()">
-        Create Your First Group
-      </button>
     </div>
   </ng-template>
 </div>

@@ -35,6 +35,13 @@ export class AddExpenseComponent implements OnInit {
     this.initForm();
   }
 
+  // Split type options for PrimeNG dropdown
+  splitTypeOptions = [
+    { label: 'Equal Split', value: SplitType.EQUAL },
+    { label: 'Percentage Split', value: SplitType.PERCENTAGE },
+    { label: 'Custom Split', value: SplitType.CUSTOM }
+  ];
+
   private initForm(): void {
     this.expenseForm = this.fb.group({
       description: ['', [Validators.required, Validators.maxLength(200)]],

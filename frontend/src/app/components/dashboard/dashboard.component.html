@@ -8,10 +8,44 @@
       </div>
       
       <div class="header-right">
+        <!-- Navigation Buttons -->
+        <div class="nav-buttons">
+          <p-button 
+            icon="pi pi-users" 
+            severity="secondary" 
+            text 
+            [routerLink]="['/dashboard/groups']"
+            routerLinkActive="active-nav"
+            pTooltip="Groups">
+            <i class="pi pi-users"></i>
+            <span>Groups</span>
+          </p-button>
+          
+          <p-button 
+            icon="pi pi-credit-card" 
+            severity="secondary" 
+            text 
+            [routerLink]="['/dashboard/expenses']"
+            routerLinkActive="active-nav"
+            pTooltip="Expenses">
+            <i class="pi pi-credit-card"></i>
+            <span>Expenses</span>
+          </p-button>
+        </div>
+        
         <div class="user-welcome" *ngIf="currentUser">
           <i class="pi pi-user"></i>
           <span>Welcome, {{ currentUser.firstName }} {{ currentUser.lastName }}</span>
         </div>
+        
+        <p-button 
+          [icon]="isDarkMode ? 'pi pi-sun' : 'pi pi-moon'" 
+          severity="secondary" 
+          text 
+          (onClick)="toggleTheme()"
+          [pTooltip]="isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'">
+        </p-button>
+        
         <p-button 
           icon="pi pi-sign-out" 
           severity="secondary" 

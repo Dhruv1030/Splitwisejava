@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
   selector: 'app-root',
@@ -7,4 +9,6 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'Splitwise Clone';
+
+  constructor(private messageService: MessageService) {}
 }
