@@ -32,4 +32,14 @@ export class DashboardComponent implements OnInit {
     this.authService.logout();
     this.router.navigate(['/login']);
   }
+
+  getGroupCount(): number {
+    // This will be enhanced later to get actual counts
+    return 0;
+  }
+
+  getExpenseCount(): number {
+    // This will be enhanced later to get actual counts
+    return 0;
+  }
 }

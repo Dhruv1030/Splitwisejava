@@ -1,6 +1,11 @@
 /* Angular Material theme */
 @import '@angular/material/prebuilt-themes/indigo-pink.css';
 
+/* PrimeNG Theme */
+@import 'primeng/resources/themes/lara-light-blue/theme.css';
+@import 'primeng/resources/primeng.css';
+@import 'primeicons/primeicons.css';
+
 /* Global styles */
 * {
   margin: 0;
