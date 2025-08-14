@@ -24,6 +24,52 @@ public class Group {
     @Size(max = 500)
     private String description;
 
+    // Enhanced Group Fields
+    @Column(name = "icon_url")
+    private String iconUrl;
+
+    @Column(name = "icon_name")
+    private String iconName = "fas fa-users"; // Default icon
+
+    @Column(name = "cover_image_url")
+    private String coverImageUrl;
+
+    @Column(name = "default_currency", length = 3)
+    private String defaultCurrency = "USD";
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "group_type")
+    private GroupType groupType = GroupType.GENERAL;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "privacy_level")
+    private PrivacyLevel privacyLevel = PrivacyLevel.PRIVATE;
+
+    @Column(name = "is_active")
+    private Boolean isActive = true;
+
+    @Column(name = "is_archived")
+    private Boolean isArchived = false;
+
+    @Column(name = "simplify_debts")
+    private Boolean simplifyDebts = true;
+
+    @Column(name = "auto_settle")
+    private Boolean autoSettle = false;
+
+    // Group Settings
+    @Column(name = "allow_member_add_expense")
+    private Boolean allowMemberAddExpense = true;
+
+    @Column(name = "allow_member_edit_expense")
+    private Boolean allowMemberEditExpense = false;
+
+    @Column(name = "require_approval_for_expense")
+    private Boolean requireApprovalForExpense = false;
+
+    @Column(name = "notification_enabled")
+    private Boolean notificationEnabled = true;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "created_by")
     private User createdBy;
@@ -40,6 +86,23 @@ public class Group {
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
+
+    // Enums
+    public enum GroupType {
+        GENERAL,
+        TRIP,
+        HOME,
+        COUPLE,
+        PROJECT,
+        EVENT,
+        OTHER
+    }
+
+    public enum PrivacyLevel {
+        PRIVATE,
+        INVITE_ONLY,
+        PUBLIC
+    }
 
     // Constructors
     public Group() {
@@ -142,5 +205,147 @@ public class Group {
     @PreUpdate
     public void preUpdate() {
         this.updatedAt = LocalDateTime.now();
+    }
+
+    // Getters and Setters for new fields
+    public String getIconUrl() {
+        return iconUrl;
+    }
+
+    public void setIconUrl(String iconUrl) {
+        this.iconUrl = iconUrl;
+    }
+
+    public String getIconName() {
+        return iconName;
+    }
+
+    public void setIconName(String iconName) {
+        this.iconName = iconName;
+    }
+
+    public String getCoverImageUrl() {
+        return coverImageUrl;
+    }
+
+    public void setCoverImageUrl(String coverImageUrl) {
+        this.coverImageUrl = coverImageUrl;
+    }
+
+    public String getDefaultCurrency() {
+        return defaultCurrency;
+    }
+
+    public void setDefaultCurrency(String defaultCurrency) {
+        this.defaultCurrency = defaultCurrency;
+    }
+
+    public GroupType getGroupType() {
+        return groupType;
+    }
+
+    public void setGroupType(GroupType groupType) {
+        this.groupType = groupType;
+    }
+
+    public PrivacyLevel getPrivacyLevel() {
+        return privacyLevel;
+    }
+
+    public void setPrivacyLevel(PrivacyLevel privacyLevel) {
+        this.privacyLevel = privacyLevel;
+    }
+
+    public Boolean getIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
+    }
+
+    public Boolean getIsArchived() {
+        return isArchived;
+    }
+
+    public void setIsArchived(Boolean isArchived) {
+        this.isArchived = isArchived;
+    }
+
+    public Boolean getSimplifyDebts() {
+        return simplifyDebts;
+    }
+
+    public void setSimplifyDebts(Boolean simplifyDebts) {
+        this.simplifyDebts = simplifyDebts;
+    }
+
+    public Boolean getAutoSettle() {
+        return autoSettle;
+    }
+
+    public void setAutoSettle(Boolean autoSettle) {
+        this.autoSettle = autoSettle;
+    }
+
+    public Boolean getAllowMemberAddExpense() {
+        return allowMemberAddExpense;
+    }
+
+    public void setAllowMemberAddExpense(Boolean allowMemberAddExpense) {
+        this.allowMemberAddExpense = allowMemberAddExpense;
+    }
+
+    public Boolean getAllowMemberEditExpense() {
+        return allowMemberEditExpense;
+    }
+
+    public void setAllowMemberEditExpense(Boolean allowMemberEditExpense) {
+        this.allowMemberEditExpense = allowMemberEditExpense;
+    }
+
+    public Boolean getRequireApprovalForExpense() {
+        return requireApprovalForExpense;
+    }
+
+    public void setRequireApprovalForExpense(Boolean requireApprovalForExpense) {
+        this.requireApprovalForExpense = requireApprovalForExpense;
+    }
+
+    public Boolean getNotificationEnabled() {
+        return notificationEnabled;
+    }
+
+    public void setNotificationEnabled(Boolean notificationEnabled) {
+        this.notificationEnabled = notificationEnabled;
+    }
+
+    // Enhanced helper methods
+    public boolean isAdmin(User user) {
+        return createdBy != null && createdBy.getId().equals(user.getId());
+    }
+
+    public boolean isMember(User user) {
+        return members.stream().anyMatch(member -> member.getId().equals(user.getId()));
+    }
+
+    public int getMemberCount() {
+        return members.size();
+    }
+
+    public String getDisplayIcon() {
+        return iconUrl != null ? iconUrl : iconName;
+    }
+
+    public boolean canUserAddExpense(User user) {
+        return isMember(user) && (allowMemberAddExpense || isAdmin(user));
+    }
+
+    public boolean canUserEditExpense(User user) {
+        return isMember(user) && (allowMemberEditExpense || isAdmin(user));
+    }
+
+    public boolean isActive() {
+        return isActive != null && isActive && (isArchived == null || !isArchived);
     }
 }
