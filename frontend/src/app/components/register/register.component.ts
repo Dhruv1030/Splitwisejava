@@ -51,8 +51,8 @@ export class RegisterComponent implements OnInit {
       this.authService.register(userData).subscribe({
         next: (response) => {
           this.loading = false;
-          this.snackBar.open('Registration successful! Please login.', 'Close', { duration: 3000 });
-          this.router.navigate(['/login']);
+          this.snackBar.open('Registration successful! You are now logged in.', 'Close', { duration: 3000 });
+          this.router.navigate(['/dashboard']);
         },
         error: (error) => {
           this.loading = false;

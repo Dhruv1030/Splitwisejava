@@ -48,7 +48,13 @@ export class AuthService {
   }
 
   register(userData: any): Observable<User> {
-    return this.http.post<User>(`${this.apiUrl}/users/register`, userData);
+    return this.http.post<User>(`${this.apiUrl}/users/register`, userData)
+      .pipe(map(response => {
+        // Store user details in local storage after registration
+        localStorage.setItem('currentUser', JSON.stringify(response));
+        this.currentUserSubject.next(response);
+        return response;
+      }));
   }
 
   logout(): void {

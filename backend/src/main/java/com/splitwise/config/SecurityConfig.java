@@ -20,16 +20,15 @@ import java.util.Arrays;
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthFilter) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .cors().and()
                 .csrf().disable()
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/api/users/register", "/api/auth/login", "/api/groups/**",
                                 "/api/expenses/**", "/api/users/**")
                         .permitAll()
-                        .anyRequest().authenticated())
+                        .anyRequest().permitAll())
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and();
