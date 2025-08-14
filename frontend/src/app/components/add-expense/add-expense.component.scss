@@ -104,6 +104,40 @@ h2[mat-dialog-title] {
   margin-top: 2px;
 }
 
+.validation-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background-color: #ffebee;
+  border: 1px solid #f44336;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  font-size: 0.9rem;
+  color: #d32f2f;
+}
+
+.validation-error mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: #d32f2f;
+}
+
+.split-summary {
+  background-color: #e8f5e8;
+  padding: 12px;
+  border-radius: 4px;
+  margin-top: 16px;
+  text-align: center;
+}
+
+.split-summary p {
+  margin: 0;
+  font-weight: 600;
+  color: #2e7d32;
+}
+
 mat-dialog-actions {
   padding: 16px 0 0 0;
   margin: 0;

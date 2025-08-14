@@ -49,8 +49,21 @@
       </div>
 
       <!-- Custom shares form for non-equal splits -->
-      <div class="shares-section" *ngIf="selectedSplitType !== 'EQUAL' && sharesArray.length > 0">
+      <div class="shares-section" *ngIf="selectedSplitType !== 'EQUAL'">
         <h4>Split Details</h4>
+        
+        <!-- No shares message -->
+        <div class="no-shares-message" *ngIf="sharesArray.length === 0" style="background: #fff3cd; padding: 12px; border-radius: 4px; margin: 16px 0;">
+          <mat-icon>info</mat-icon>
+          <span>No group members found to split with. Please check your group configuration.</span>
+        </div>
+        
+        <!-- Validation Error Message -->
+        <div class="validation-error" *ngIf="getSharesErrorMessage()">
+          <mat-icon>error</mat-icon>
+          <span>{{ getSharesErrorMessage() }}</span>
+        </div>
+        
         <div class="shares-form" formArrayName="shares">
           <div class="share-item" *ngFor="let share of sharesArray.controls; let i = index" [formGroupName]="i">
             <div class="share-header">
@@ -58,22 +71,41 @@
             </div>
             
             <div class="share-inputs">
-              <mat-form-field appearance="outline" class="amount-input">
+              <!-- Amount field for CUSTOM split -->
+              <mat-form-field appearance="outline" class="amount-input" 
+                            *ngIf="selectedSplitType === 'CUSTOM'">
                 <mat-label>Amount</mat-label>
                 <input matInput type="number" formControlName="amount" 
                        placeholder="0.00" step="0.01" min="0">
                 <span matPrefix>$&nbsp;</span>
+                <mat-error *ngIf="share.get('amount')?.hasError('required')">
+                  Amount is required
+                </mat-error>
               </mat-form-field>
               
+              <!-- Percentage field for PERCENTAGE split -->
               <mat-form-field appearance="outline" class="percentage-input" 
                             *ngIf="selectedSplitType === 'PERCENTAGE'">
                 <mat-label>Percentage</mat-label>
                 <input matInput type="number" formControlName="percentage" 
-                       placeholder="0" min="0" max="100">
+                       placeholder="0" min="0" max="100" step="0.01">
                 <span matSuffix>%</span>
+                <mat-error *ngIf="share.get('percentage')?.hasError('required')">
+                  Percentage is required
+                </mat-error>
               </mat-form-field>
             </div>
           </div>
+        </div>
+        
+        <!-- Split Summary -->
+        <div class="split-summary">
+          <p *ngIf="selectedSplitType === 'PERCENTAGE'">
+            Total: {{ getTotalPercentage() }}%
+          </p>
+          <p *ngIf="selectedSplitType === 'CUSTOM'">
+            Total: ${{ getTotalCustomAmount() }} / ${{ expenseForm.get('amount')?.value || 0 }}
+          </p>
         </div>
       </div>
 
@@ -86,8 +118,10 @@
     <mat-dialog-actions align="end">
       <button mat-button type="button" (click)="onCancel()">Cancel</button>
       <button mat-raised-button color="primary" type="submit" 
-              [disabled]="expenseForm.invalid">
-        Add Expense
+              [disabled]="expenseForm.invalid || loading">
+        <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
+        <span *ngIf="!loading">Add Expense</span>
+        <span *ngIf="loading">Adding...</span>
       </button>
     </mat-dialog-actions>
   </form>

@@ -27,6 +27,7 @@ import { GroupListComponent } from './components/group-list/group-list.component
 import { ExpenseListComponent } from './components/expense-list/expense-list.component';
 import { AddExpenseComponent } from './components/add-expense/add-expense.component';
 import { AddGroupComponent } from './components/add-group/add-group.component';
+import { ConfirmationDialogComponent } from './components/confirmation-dialog/confirmation-dialog.component';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -40,7 +41,8 @@ import { AppRoutingModule } from './app-routing.module';
     GroupListComponent,
     ExpenseListComponent,
     AddExpenseComponent,
-    AddGroupComponent
+    AddGroupComponent,
+    ConfirmationDialogComponent
   ],
   imports: [
     BrowserModule,

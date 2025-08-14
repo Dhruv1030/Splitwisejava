@@ -6,6 +6,7 @@ import { AuthService } from '../../services/auth.service';
 import { Group, GroupDto } from '../../models/group.model';
 import { User } from '../../models/user.model';
 import { AddGroupComponent } from '../add-group/add-group.component';
+import { ConfirmationDialogComponent, ConfirmationDialogData } from '../confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-group-list',
@@ -56,24 +57,51 @@ export class GroupListComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.loadGroups();
-        this.snackBar.open('Group created successfully!', 'Close', { duration: 3000 });
+        this.snackBar.open('Group created successfully!', 'Close', { 
+          duration: 3000,
+          panelClass: ['success-snackbar']
+        });
       }
     });
   }
 
   deleteGroup(groupId: number): void {
-    if (confirm('Are you sure you want to delete this group?')) {
-      this.groupService.deleteGroup(groupId).subscribe({
-        next: () => {
-          this.loadGroups();
-          this.snackBar.open('Group deleted successfully!', 'Close', { duration: 3000 });
-        },
-        error: (error) => {
-          console.error('Error deleting group:', error);
-          this.snackBar.open('Error deleting group', 'Close', { duration: 3000 });
-        }
-      });
-    }
+    const group = this.groups.find(g => g.id === groupId);
+    if (!group) return;
+
+    const dialogData: ConfirmationDialogData = {
+      title: 'Delete Group',
+      message: `Are you sure you want to delete "${group.name}"? This action cannot be undone and will also delete all associated expenses.`,
+      confirmText: 'Delete Group',
+      cancelText: 'Cancel',
+      type: 'danger'
+    };
+
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '500px',
+      data: dialogData
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.groupService.deleteGroup(groupId).subscribe({
+          next: () => {
+            this.loadGroups();
+            this.snackBar.open('Group deleted successfully!', 'Close', { 
+              duration: 3000,
+              panelClass: ['success-snackbar']
+            });
+          },
+          error: (error) => {
+            console.error('Error deleting group:', error);
+            this.snackBar.open('Failed to delete group. Please try again.', 'Close', { 
+              duration: 4000,
+              panelClass: ['error-snackbar']
+            });
+          }
+        });
+      }
+    });
   }
 
   getMemberCount(group: Group): number {

@@ -14,6 +14,7 @@ import { User } from '../../models/user.model';
 export class AddGroupComponent implements OnInit {
   groupForm!: FormGroup;
   currentUser: User;
+  loading = false;
 
   constructor(
     private fb: FormBuilder,
@@ -38,6 +39,7 @@ export class AddGroupComponent implements OnInit {
 
   onSubmit(): void {
     if (this.groupForm.valid) {
+      this.loading = true;
       const groupDto: GroupDto = {
         ...this.groupForm.value,
         createdById: this.currentUser.id!
@@ -45,11 +47,20 @@ export class AddGroupComponent implements OnInit {
 
       this.groupService.createGroup(groupDto).subscribe({
         next: (group) => {
+          this.loading = false;
+          this.snackBar.open('Group created successfully!', 'Close', { 
+            duration: 3000,
+            panelClass: ['success-snackbar']
+          });
           this.dialogRef.close(group);
         },
         error: (error) => {
+          this.loading = false;
           console.error('Error creating group:', error);
-          this.snackBar.open('Error creating group', 'Close', { duration: 3000 });
+          this.snackBar.open('Failed to create group. Please try again.', 'Close', { 
+            duration: 4000,
+            panelClass: ['error-snackbar']
+          });
         }
       });
     }

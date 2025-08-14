@@ -9,6 +9,7 @@ import { Expense, ExpenseDto } from '../../models/expense.model';
 import { Group } from '../../models/group.model';
 import { User } from '../../models/user.model';
 import { AddExpenseComponent } from '../add-expense/add-expense.component';
+import { ConfirmationDialogComponent, ConfirmationDialogData } from '../confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-expense-list',
@@ -86,38 +87,78 @@ export class ExpenseListComponent implements OnInit {
       return;
     }
 
+    // Get the basic group info
     const selectedGroup = this.groups.find(g => g.id === this.selectedGroupId);
     if (!selectedGroup) return;
 
-    const dialogRef = this.dialog.open(AddExpenseComponent, {
-      width: '600px',
-      data: { 
-        currentUser: this.currentUser,
-        selectedGroup: selectedGroup
-      }
-    });
+    // Fetch the full group details including members
+    this.groupService.getGroupById(selectedGroup.id!).subscribe({
+      next: (fullGroup) => {
+        const dialogRef = this.dialog.open(AddExpenseComponent, {
+          width: '600px',
+          data: { 
+            currentUser: this.currentUser,
+            selectedGroup: fullGroup
+          }
+        });
 
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.loadExpenses();
-        this.snackBar.open('Expense added successfully!', 'Close', { duration: 3000 });
+        dialogRef.afterClosed().subscribe(result => {
+          if (result) {
+            this.loadExpenses();
+            this.snackBar.open('Expense added successfully!', 'Close', { 
+              duration: 3000,
+              panelClass: ['success-snackbar']
+            });
+          }
+        });
+      },
+      error: (error) => {
+        console.error('Error fetching group details:', error);
+        this.snackBar.open('Failed to load group details. Please try again.', 'Close', { 
+          duration: 4000,
+          panelClass: ['error-snackbar']
+        });
       }
     });
   }
 
   deleteExpense(expenseId: number): void {
-    if (confirm('Are you sure you want to delete this expense?')) {
-      this.expenseService.deleteExpense(expenseId).subscribe({
-        next: () => {
-          this.loadExpenses();
-          this.snackBar.open('Expense deleted successfully!', 'Close', { duration: 3000 });
-        },
-        error: (error) => {
-          console.error('Error deleting expense:', error);
-          this.snackBar.open('Error deleting expense', 'Close', { duration: 3000 });
-        }
-      });
-    }
+    const expense = this.expenses.find(e => e.id === expenseId);
+    if (!expense) return;
+
+    const dialogData: ConfirmationDialogData = {
+      title: 'Delete Expense',
+      message: `Are you sure you want to delete "${expense.description}" ($${expense.amount})? This action cannot be undone.`,
+      confirmText: 'Delete Expense',
+      cancelText: 'Cancel',
+      type: 'warning'
+    };
+
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '500px',
+      data: dialogData
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.expenseService.deleteExpense(expenseId).subscribe({
+          next: () => {
+            this.loadExpenses();
+            this.snackBar.open('Expense deleted successfully!', 'Close', { 
+              duration: 3000,
+              panelClass: ['success-snackbar']
+            });
+          },
+          error: (error) => {
+            console.error('Error deleting expense:', error);
+            this.snackBar.open('Failed to delete expense. Please try again.', 'Close', { 
+              duration: 4000,
+              panelClass: ['error-snackbar']
+            });
+          }
+        });
+      }
+    });
   }
 
   getExpenseTotal(expense: Expense): number {

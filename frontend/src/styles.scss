@@ -56,3 +56,31 @@ body {
 .p-20 {
   padding: 20px;
 }
+
+/* Custom Snackbar Styles */
+.success-snackbar {
+  background-color: #4caf50 !important;
+  color: white !important;
+}
+
+.success-snackbar .mdc-snackbar__surface {
+  background-color: #4caf50 !important;
+}
+
+.error-snackbar {
+  background-color: #f44336 !important;
+  color: white !important;
+}
+
+.error-snackbar .mdc-snackbar__surface {
+  background-color: #f44336 !important;
+}
+
+/* Loading Button Styles */
+button[disabled] {
+  cursor: not-allowed;
+}
+
+.mat-spinner {
+  margin-right: 8px;
+}
