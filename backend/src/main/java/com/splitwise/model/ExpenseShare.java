@@ -3,6 +3,7 @@ package com.splitwise.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.math.BigDecimal;
 
 @Entity
@@ -15,10 +16,12 @@ public class ExpenseShare {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "expense_id")
+    @JsonIgnore
     private Expense expense;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    @JsonIgnore
     private User user;
 
     @NotNull

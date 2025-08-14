@@ -43,9 +43,11 @@ public class User {
     private Set<Group> groups = new HashSet<>();
 
     @OneToMany(mappedBy = "paidBy")
+    @JsonIgnore
     private Set<Expense> expenses = new HashSet<>();
 
     @OneToMany(mappedBy = "user")
+    @JsonIgnore
     private Set<ExpenseShare> expenseShares = new HashSet<>();
 
     // Constructors
