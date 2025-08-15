@@ -1,5 +1,6 @@
 package com.splitwise.dto;
 
+import com.splitwise.model.Group;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import java.util.Set;
@@ -17,6 +18,22 @@ public class GroupDto {
 
     private Long createdById;
     private Set<Long> memberIds;
+
+    // Enhanced Group Fields
+    private String iconUrl;
+    private String iconName;
+    private String coverImageUrl;
+    private String defaultCurrency;
+    private Group.GroupType groupType;
+    private Group.PrivacyLevel privacyLevel;
+    private Boolean isActive;
+    private Boolean isArchived;
+    private Boolean simplifyDebts;
+    private Boolean autoSettle;
+    private Boolean allowMemberAddExpense;
+    private Boolean allowMemberEditExpense;
+    private Boolean requireApprovalForExpense;
+    private Boolean notificationEnabled;
 
     // Constructors
     public GroupDto() {
@@ -66,5 +83,118 @@ public class GroupDto {
 
     public void setMemberIds(Set<Long> memberIds) {
         this.memberIds = memberIds;
+    }
+
+    // Enhanced Group Fields - Getters and Setters
+    public String getIconUrl() {
+        return iconUrl;
+    }
+
+    public void setIconUrl(String iconUrl) {
+        this.iconUrl = iconUrl;
+    }
+
+    public String getIconName() {
+        return iconName;
+    }
+
+    public void setIconName(String iconName) {
+        this.iconName = iconName;
+    }
+
+    public String getCoverImageUrl() {
+        return coverImageUrl;
+    }
+
+    public void setCoverImageUrl(String coverImageUrl) {
+        this.coverImageUrl = coverImageUrl;
+    }
+
+    public String getDefaultCurrency() {
+        return defaultCurrency;
+    }
+
+    public void setDefaultCurrency(String defaultCurrency) {
+        this.defaultCurrency = defaultCurrency;
+    }
+
+    public Group.GroupType getGroupType() {
+        return groupType;
+    }
+
+    public void setGroupType(Group.GroupType groupType) {
+        this.groupType = groupType;
+    }
+
+    public Group.PrivacyLevel getPrivacyLevel() {
+        return privacyLevel;
+    }
+
+    public void setPrivacyLevel(Group.PrivacyLevel privacyLevel) {
+        this.privacyLevel = privacyLevel;
+    }
+
+    public Boolean getIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
+    }
+
+    public Boolean getIsArchived() {
+        return isArchived;
+    }
+
+    public void setIsArchived(Boolean isArchived) {
+        this.isArchived = isArchived;
+    }
+
+    public Boolean getSimplifyDebts() {
+        return simplifyDebts;
+    }
+
+    public void setSimplifyDebts(Boolean simplifyDebts) {
+        this.simplifyDebts = simplifyDebts;
+    }
+
+    public Boolean getAutoSettle() {
+        return autoSettle;
+    }
+
+    public void setAutoSettle(Boolean autoSettle) {
+        this.autoSettle = autoSettle;
+    }
+
+    public Boolean getAllowMemberAddExpense() {
+        return allowMemberAddExpense;
+    }
+
+    public void setAllowMemberAddExpense(Boolean allowMemberAddExpense) {
+        this.allowMemberAddExpense = allowMemberAddExpense;
+    }
+
+    public Boolean getAllowMemberEditExpense() {
+        return allowMemberEditExpense;
+    }
+
+    public void setAllowMemberEditExpense(Boolean allowMemberEditExpense) {
+        this.allowMemberEditExpense = allowMemberEditExpense;
+    }
+
+    public Boolean getRequireApprovalForExpense() {
+        return requireApprovalForExpense;
+    }
+
+    public void setRequireApprovalForExpense(Boolean requireApprovalForExpense) {
+        this.requireApprovalForExpense = requireApprovalForExpense;
+    }
+
+    public Boolean getNotificationEnabled() {
+        return notificationEnabled;
+    }
+
+    public void setNotificationEnabled(Boolean notificationEnabled) {
+        this.notificationEnabled = notificationEnabled;
     }
 }
