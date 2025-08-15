@@ -1,10 +1,7 @@
 /* Angular Material theme */
 @import '@angular/material/prebuilt-themes/indigo-pink.css';
 
-/* PrimeNG Theme */
-@import 'primeng/resources/themes/lara-light-blue/theme.css';
-@import 'primeng/resources/primeng.css';
-@import 'primeicons/primeicons.css';
+/* Removed PrimeNG - Using Angular Material only */
 
 /* Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
@@ -560,3 +557,6 @@ button[disabled] {
     transform: translateY(-30px) scale(0.95);
   }
 }
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

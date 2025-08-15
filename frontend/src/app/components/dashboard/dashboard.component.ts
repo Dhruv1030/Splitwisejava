@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { User } from '../../models/user.model';
-import { MessageService } from 'primeng/api';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-dashboard',
@@ -17,7 +17,7 @@ export class DashboardComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private router: Router,
-    private messageService: MessageService
+    private snackBar: MatSnackBar
   ) { }
 
   ngOnInit(): void {
@@ -36,6 +36,7 @@ export class DashboardComponent implements OnInit {
 
   logout(): void {
     this.authService.logout();
+    this.snackBar.open('Logged out successfully', 'Close', { duration: 3000 });
     this.router.navigate(['/login']);
   }
 
@@ -55,19 +56,15 @@ export class DashboardComponent implements OnInit {
     this.saveThemePreference();
     
     const themeName = this.isDarkMode ? 'Dark' : 'Light';
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Theme Changed',
-      detail: `Switched to ${themeName} mode`,
-      life: 3000
-    });
+    this.snackBar.open(`Switched to ${themeName} mode`, 'Close', { duration: 3000 });
   }
 
   private applyTheme(): void {
-    const themeLink = document.getElementById('theme-link') as HTMLLinkElement;
-    if (themeLink) {
-      const themeName = this.isDarkMode ? 'lara-dark-blue' : 'lara-light-blue';
-      themeLink.href = `primeng/resources/themes/${themeName}/theme.css`;
+    const body = document.body;
+    if (this.isDarkMode) {
+      body.classList.add('dark-theme');
+    } else {
+      body.classList.remove('dark-theme');
     }
   }
 

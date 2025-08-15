@@ -5,6 +5,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 
+// Angular Material Modules
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -18,23 +19,15 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-
-// PrimeNG Modules
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { InputTextareaModule } from 'primeng/inputtextarea';
-import { DropdownModule } from 'primeng/dropdown';
-import { TableModule } from 'primeng/table';
-import { DialogModule } from 'primeng/dialog';
-import { DynamicDialogModule } from 'primeng/dynamicdialog';
-import { ToastModule } from 'primeng/toast';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { DividerModule } from 'primeng/divider';
-import { BadgeModule } from 'primeng/badge';
-import { ChipModule } from 'primeng/chip';
-import { TooltipModule } from 'primeng/tooltip';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatGridListModule } from '@angular/material/grid-list';
+import { MatDividerModule } from '@angular/material/divider';
 
 import { AppComponent } from './app.component';
 import { LoginComponent } from './components/login/login.component';
@@ -42,13 +35,14 @@ import { RegisterComponent } from './components/register/register.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { GroupListComponent } from './components/group-list/group-list.component';
 import { ExpenseListComponent } from './components/expense-list/expense-list.component';
-import { AddExpenseComponent } from './components/add-expense/add-expense.component';
-import { AddGroupComponent } from './components/add-group/add-group.component';
+// import { AddExpenseComponent } from './components/add-expense/add-expense.component';
 import { ConfirmationDialogComponent } from './components/confirmation-dialog/confirmation-dialog.component';
-import { AuthInterceptor } from './interceptors/auth.interceptor';
-import { MessageService } from 'primeng/api';
-import { DialogService } from 'primeng/dynamicdialog';
+import { UserProfileComponent } from './components/user-profile/user-profile.component';
+import { ProfileSettingsComponent } from './components/profile-settings/profile-settings.component';
+import { ContactsManagerComponent } from './components/contacts-manager/contacts-manager.component';
+import { NotificationsCenterComponent } from './components/notifications-center/notifications-center.component';
 
+import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { AppRoutingModule } from './app-routing.module';
 
 @NgModule({
@@ -59,9 +53,12 @@ import { AppRoutingModule } from './app-routing.module';
     DashboardComponent,
     GroupListComponent,
     ExpenseListComponent,
-    AddExpenseComponent,
-    AddGroupComponent,
-    ConfirmationDialogComponent
+    // AddExpenseComponent,
+    ConfirmationDialogComponent,
+    UserProfileComponent,
+    ProfileSettingsComponent,
+    ContactsManagerComponent,
+    NotificationsCenterComponent
   ],
   imports: [
     BrowserModule,
@@ -71,6 +68,7 @@ import { AppRoutingModule } from './app-routing.module';
     HttpClientModule,
     RouterModule,
     AppRoutingModule,
+    // Angular Material Modules
     MatToolbarModule,
     MatButtonModule,
     MatCardModule,
@@ -84,31 +82,22 @@ import { AppRoutingModule } from './app-routing.module';
     MatSelectModule,
     MatSnackBarModule,
     MatProgressSpinnerModule,
-    // PrimeNG Modules
-    ButtonModule,
-    CardModule,
-    InputTextModule,
-    InputNumberModule,
-    InputTextareaModule,
-    DropdownModule,
-    TableModule,
-    DialogModule,
-    DynamicDialogModule,
-    ToastModule,
-    ProgressSpinnerModule,
-    DividerModule,
-    BadgeModule,
-    ChipModule,
-    TooltipModule
+    MatTabsModule,
+    MatSlideToggleModule,
+    MatChipsModule,
+    MatBadgeModule,
+    MatMenuModule,
+    MatTooltipModule,
+    MatExpansionModule,
+    MatGridListModule,
+    MatDividerModule
   ],
   providers: [
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
       multi: true
-    },
-    MessageService,
-    DialogService
+    }
   ],
   bootstrap: [AppComponent]
 })

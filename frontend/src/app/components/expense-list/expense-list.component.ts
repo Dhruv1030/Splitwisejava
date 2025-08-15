@@ -8,7 +8,7 @@ import { AuthService } from '../../services/auth.service';
 import { Expense, ExpenseDto } from '../../models/expense.model';
 import { Group } from '../../models/group.model';
 import { User } from '../../models/user.model';
-import { AddExpenseComponent } from '../add-expense/add-expense.component';
+// import { AddExpenseComponent } from '../add-expense/add-expense.component';
 import { ConfirmationDialogComponent, ConfirmationDialogData } from '../confirmation-dialog/confirmation-dialog.component';
 
 @Component({
@@ -94,23 +94,12 @@ export class ExpenseListComponent implements OnInit {
     // Fetch the full group details including members
     this.groupService.getGroupById(selectedGroup.id!).subscribe({
       next: (fullGroup) => {
-        const dialogRef = this.dialog.open(AddExpenseComponent, {
-          width: '600px',
-          data: { 
-            currentUser: this.currentUser,
-            selectedGroup: fullGroup
-          }
+        // Temporarily disabled - AddExpenseComponent needs to be converted to Material Design
+        this.snackBar.open('Add Expense feature is being updated. Please check back soon!', 'Close', { 
+          duration: 3000 
         });
 
-        dialogRef.afterClosed().subscribe(result => {
-          if (result) {
-            this.loadExpenses();
-            this.snackBar.open('Expense added successfully!', 'Close', { 
-              duration: 3000,
-              panelClass: ['success-snackbar']
-            });
-          }
-        });
+
       },
       error: (error) => {
         console.error('Error fetching group details:', error);

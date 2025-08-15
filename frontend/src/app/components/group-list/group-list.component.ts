@@ -1,12 +1,23 @@
 import { Component, OnInit } from '@angular/core';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { MessageService } from 'primeng/api';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { GroupService } from '../../services/group.service';
 import { AuthService } from '../../services/auth.service';
-import { Group, GroupDto } from '../../models/group.model';
+import { Group } from '../../models/group.model';
 import { User } from '../../models/user.model';
-import { AddGroupComponent } from '../add-group/add-group.component';
-import { ConfirmationDialogComponent, ConfirmationDialogData } from '../confirmation-dialog/confirmation-dialog.component';
+import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
+
+// Mock group interface for now
+interface MockGroup {
+  id: number;
+  name: string;
+  description: string;
+  memberCount: number;
+  totalExpenses: number;
+  yourBalance: number;
+  createdAt: string;
+  iconUrl?: string;
+}
 
 @Component({
   selector: 'app-group-list',
@@ -14,15 +25,15 @@ import { ConfirmationDialogComponent, ConfirmationDialogData } from '../confirma
   styleUrls: ['./group-list.component.scss']
 })
 export class GroupListComponent implements OnInit {
-  groups: Group[] = [];
+  groups: MockGroup[] = [];
   currentUser: User | null = null;
   loading = false;
 
   constructor(
     private groupService: GroupService,
     private authService: AuthService,
-    private dialogService: DialogService,
-    private messageService: MessageService
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar
   ) { }
 
   ngOnInit(): void {
@@ -31,97 +42,123 @@ export class GroupListComponent implements OnInit {
   }
 
   loadGroups(): void {
-    if (!this.currentUser) return;
-    
     this.loading = true;
-    this.groupService.getGroupsByUserId(this.currentUser.id!)
-      .subscribe({
-        next: (groups) => {
-          this.groups = groups;
-          this.loading = false;
+    
+    // Mock data for now - replace with real API call later
+    setTimeout(() => {
+      this.groups = [
+        {
+          id: 1,
+          name: 'Roommates',
+          description: 'Apartment expenses and utilities',
+          memberCount: 4,
+          totalExpenses: 1250.75,
+          yourBalance: -125.50,
+          createdAt: '2025-01-15',
+          iconUrl: 'https://via.placeholder.com/40?text=🏠'
         },
-        error: (error) => {
-          console.error('Error loading groups:', error);
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: 'Error loading groups',
-            life: 3000
-          });
-          this.loading = false;
+        {
+          id: 2,
+          name: 'Weekend Trip',
+          description: 'Vacation expenses for our group trip',
+          memberCount: 6,
+          totalExpenses: 2840.25,
+          yourBalance: 245.80,
+          createdAt: '2025-02-01',
+          iconUrl: 'https://via.placeholder.com/40?text=✈️'
+        },
+        {
+          id: 3,
+          name: 'Office Lunch',
+          description: 'Regular office lunch expenses',
+          memberCount: 8,
+          totalExpenses: 456.90,
+          yourBalance: 0,
+          createdAt: '2025-02-10',
+          iconUrl: 'https://via.placeholder.com/40?text=🍽️'
         }
-      });
+      ];
+      this.loading = false;
+    }, 1000);
+
+    // TODO: Replace with real API call
+    /*
+    this.groupService.getUserGroups().subscribe({
+      next: (groups) => {
+        this.groups = groups;
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error loading groups:', error);
+        this.snackBar.open('Error loading groups', 'Close', { duration: 3000 });
+        this.loading = false;
+      }
+    });
+    */
   }
 
-  openAddGroupDialog(): void {
-    const dialogRef = this.dialogService.open(AddGroupComponent, {
-      header: 'Create New Group',
+  onCreateGroup(): void {
+    this.snackBar.open('Create Group feature is being updated. Please check back soon!', 'Close', { 
+      duration: 3000 
+    });
+    
+    // TODO: Implement create group dialog
+    /*
+    const dialogRef = this.dialog.open(AddGroupComponent, {
       width: '500px',
       data: { currentUser: this.currentUser }
     });
 
-    dialogRef.onClose.subscribe((result: any) => {
+    dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.loadGroups();
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Success',
-          detail: 'Group created successfully!',
-          life: 3000
-        });
+        this.snackBar.open('Group created successfully!', 'Close', { duration: 3000 });
       }
     });
+    */
   }
 
-  deleteGroup(groupId: number): void {
-    const group = this.groups.find(g => g.id === groupId);
-    if (!group) return;
+  onGroupClick(group: MockGroup): void {
+    this.snackBar.open(`Opening ${group.name} details...`, 'Close', { duration: 2000 });
+    // TODO: Navigate to group details
+  }
 
-    const dialogData: ConfirmationDialogData = {
-      title: 'Delete Group',
-      message: `Are you sure you want to delete "${group.name}"? This action cannot be undone and will also delete all associated expenses.`,
-      confirmText: 'Delete Group',
-      cancelText: 'Cancel',
-      type: 'danger'
-    };
+  onSettleUp(group: MockGroup): void {
+    this.snackBar.open(`Settle up feature for ${group.name} coming soon!`, 'Close', { duration: 3000 });
+  }
 
-    const dialogRef = this.dialogService.open(ConfirmationDialogComponent, {
-      header: 'Confirm Deletion',
-      width: '500px',
-      data: dialogData
+  onDeleteGroup(group: MockGroup): void {
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '350px',
+      data: {
+        title: 'Delete Group',
+        message: `Are you sure you want to delete "${group.name}"? This action cannot be undone.`,
+        confirmText: 'Delete',
+        cancelText: 'Cancel'
+      }
     });
 
-    dialogRef.onClose.subscribe((result: any) => {
+    dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.groupService.deleteGroup(groupId).subscribe({
-          next: () => {
-            this.loadGroups();
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Success',
-              detail: 'Group deleted successfully!',
-              life: 3000
-            });
-          },
-          error: (error) => {
-            console.error('Error deleting group:', error);
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Error',
-              detail: 'Failed to delete group. Please try again.',
-              life: 4000
-            });
-          }
-        });
+        this.groups = this.groups.filter(g => g.id !== group.id);
+        this.snackBar.open('Group deleted successfully!', 'Close', { duration: 3000 });
       }
     });
   }
 
-  getMemberCount(group: Group): number {
-    return group.members ? group.members.length : 0;
+  getBalanceColor(balance: number): string {
+    if (balance > 0) return 'primary';
+    if (balance < 0) return 'warn';
+    return 'accent';
   }
 
-  getExpenseCount(group: Group): number {
-    return group.expenses ? group.expenses.length : 0;
+  getBalanceText(balance: number): string {
+    if (balance > 0) return `You are owed $${Math.abs(balance).toFixed(2)}`;
+    if (balance < 0) return `You owe $${Math.abs(balance).toFixed(2)}`;
+    return 'All settled up';
+  }
+
+  formatDate(dateString: string): string {
+    return new Date(dateString).toLocaleDateString();
   }
 }

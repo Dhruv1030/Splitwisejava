@@ -1,0 +1,121 @@
+<div class="profile-container">
+  <mat-card class="profile-card">
+    <mat-card-header>
+      <mat-card-title>User Profile</mat-card-title>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <div class="profile-content" *ngIf="userProfile; else loadingTemplate">
+        <!-- Avatar Section -->
+        <div class="avatar-section">
+          <div class="avatar-container">
+            <img 
+              [src]="userProfile.avatarUrl || 'https://via.placeholder.com/120?text=' + userProfile.initials" 
+              [alt]="userProfile.fullName"
+              class="avatar"
+            />
+          </div>
+          <div class="user-info">
+            <h2>{{ userProfile.fullName }}</h2>
+            <p class="username">{{ userProfile.username }}</p>
+            <p class="email">{{ userProfile.email }}</p>
+          </div>
+        </div>
+
+        <!-- Profile Form -->
+        <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="profile-form">
+          <div class="form-section">
+            <h3>Personal Information</h3>
+            
+            <div class="form-row">
+              <mat-form-field appearance="outline">
+                <mat-label>First Name</mat-label>
+                <input matInput formControlName="firstName" [readonly]="!editing">
+                <mat-error *ngIf="profileForm.get('firstName')?.hasError('required')">
+                  First name is required
+                </mat-error>
+              </mat-form-field>
+              
+              <mat-form-field appearance="outline">
+                <mat-label>Last Name</mat-label>
+                <input matInput formControlName="lastName" [readonly]="!editing">
+                <mat-error *ngIf="profileForm.get('lastName')?.hasError('required')">
+                  Last name is required
+                </mat-error>
+              </mat-form-field>
+            </div>
+            
+            <div class="form-row">
+              <mat-form-field appearance="outline">
+                <mat-label>Phone</mat-label>
+                <input matInput formControlName="phone" [readonly]="!editing">
+              </mat-form-field>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3>Preferences</h3>
+            
+            <div class="form-row">
+              <mat-form-field appearance="outline">
+                <mat-label>Default Currency</mat-label>
+                <mat-select formControlName="defaultCurrency" [disabled]="!editing">
+                  <mat-option *ngFor="let currency of currencies" [value]="currency">
+                    {{ currency }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+              
+              <mat-form-field appearance="outline">
+                <mat-label>Language</mat-label>
+                <mat-select formControlName="language" [disabled]="!editing">
+                  <mat-option *ngFor="let lang of languages" [value]="lang.code">
+                    {{ lang.name }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button 
+              mat-raised-button 
+              color="primary" 
+              type="button"
+              (click)="toggleEdit()" 
+              *ngIf="!editing"
+            >
+              Edit Profile
+            </button>
+            
+            <div class="edit-actions" *ngIf="editing">
+              <button 
+                mat-raised-button 
+                color="primary" 
+                type="submit"
+                [disabled]="profileForm.invalid || loading"
+              >
+                Save Changes
+              </button>
+              <button 
+                mat-stroked-button 
+                type="button"
+                (click)="toggleEdit()"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Loading Template -->
+      <ng-template #loadingTemplate>
+        <div class="loading-container">
+          <mat-spinner></mat-spinner>
+          <p>Loading profile...</p>
+        </div>
+      </ng-template>
+    </mat-card-content>
+  </mat-card>
+</div>
