@@ -10,6 +10,22 @@ export interface Group {
   expenses?: Expense[];
   createdAt?: Date;
   updatedAt?: Date;
+  
+  // Enhanced Group Fields
+  iconUrl?: string;
+  iconName?: string;
+  coverImageUrl?: string;
+  defaultCurrency?: string;
+  groupType?: GroupType;
+  privacyLevel?: PrivacyLevel;
+  isActive?: boolean;
+  isArchived?: boolean;
+  simplifyDebts?: boolean;
+  autoSettle?: boolean;
+  allowMemberAddExpense?: boolean;
+  allowMemberEditExpense?: boolean;
+  requireApprovalForExpense?: boolean;
+  notificationEnabled?: boolean;
 }
 
 export interface GroupDto {
@@ -18,4 +34,35 @@ export interface GroupDto {
   description?: string;
   createdById?: number;
   memberIds?: number[];
+  
+  // Enhanced Group Fields
+  iconUrl?: string;
+  iconName?: string;
+  coverImageUrl?: string;
+  defaultCurrency?: string;
+  groupType?: GroupType;
+  privacyLevel?: PrivacyLevel;
+  isActive?: boolean;
+  isArchived?: boolean;
+  simplifyDebts?: boolean;
+  autoSettle?: boolean;
+  allowMemberAddExpense?: boolean;
+  allowMemberEditExpense?: boolean;
+  requireApprovalForExpense?: boolean;
+  notificationEnabled?: boolean;
+}
+
+export enum GroupType {
+  GENERAL = 'GENERAL',
+  TRIP = 'TRIP',
+  HOUSE = 'HOUSE',
+  WORK = 'WORK',
+  EVENT = 'EVENT',
+  OTHER = 'OTHER'
+}
+
+export enum PrivacyLevel {
+  PUBLIC = 'PUBLIC',
+  PRIVATE = 'PRIVATE',
+  INVITE_ONLY = 'INVITE_ONLY'
 }

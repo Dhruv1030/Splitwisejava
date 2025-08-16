@@ -3,6 +3,8 @@ import { RouterModule, Routes } from '@angular/router';
 import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
+// import { DashboardOverviewComponent } from './components/dashboard-overview/dashboard-overview.component';
+import { DashboardOverviewComponent } from './components/dashboard-overview/dashboard-overview-simple.component';
 import { GroupListComponent } from './components/group-list/group-list.component';
 import { ExpenseListComponent } from './components/expense-list/expense-list.component';
 import { UserProfileComponent } from './components/user-profile/user-profile.component';
@@ -20,11 +22,13 @@ const routes: Routes = [
     component: DashboardComponent,
     canActivate: [AuthGuard],
     children: [
-      { path: '', redirectTo: 'profile', pathMatch: 'full' },
+      { path: '', redirectTo: 'overview', pathMatch: 'full' },
+      { path: 'overview', component: DashboardOverviewComponent },
       { path: 'groups', component: GroupListComponent },
       { path: 'expenses', component: ExpenseListComponent },
-      { path: 'profile', component: UserProfileComponent },
       { path: 'contacts', component: ContactsManagerComponent },
+      { path: 'activity', component: NotificationsCenterComponent },
+      { path: 'profile', component: UserProfileComponent },
       { path: 'notifications', component: NotificationsCenterComponent }
     ]
   }
