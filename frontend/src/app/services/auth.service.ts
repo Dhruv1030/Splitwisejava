@@ -36,8 +36,8 @@ export class AuthService {
     return this.currentUserSubject.value;
   }
 
-  login(username: string, password: string): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.apiUrl}/auth/login`, { username, password })
+  login(usernameOrEmail: string, password: string): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${this.apiUrl}/auth/login`, { usernameOrEmail, password })
       .pipe(map(response => {
         // Store user details and jwt token in local storage
         localStorage.setItem('currentUser', JSON.stringify(response.user));
@@ -74,5 +74,9 @@ export class AuthService {
 
   getCurrentUser(): User | null {
     return this.currentUserValue;
+  }
+
+  signUp(username: string, email: string, password: string): Observable<User> {
+    return this.http.post<User>(`${this.apiUrl}/users/signup`, { username, email, password });
   }
 }

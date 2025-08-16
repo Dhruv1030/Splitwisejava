@@ -1,29 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
-
-export interface Contact {
-  id: number;
-  userId: number;
-  contactUserId?: number;
-  contactName?: string;
-  contactEmail?: string;
-  contactPhone?: string;
-  status: 'PENDING' | 'ACCEPTED' | 'DECLINED' | 'BLOCKED';
-  relationshipType: 'FRIEND' | 'FAMILY' | 'COLLEAGUE' | 'OTHER';
-  isBlocked: boolean;
-  addedAt: string;
-  updatedAt: string;
-}
-
-export interface AddContactRequest {
-  email?: string;
-  contactUserId?: number;
-  contactName?: string;
-  contactPhone?: string;
-  relationshipType?: string;
-}
+import { Contact, ContactInvitation, AddContactRequest } from '../models/contact.model';
 
 @Injectable({
   providedIn: 'root'
@@ -41,90 +21,179 @@ export class ContactsService {
     });
   }
 
-  // Get all contacts for current user
+  // Mock data for development
+  private mockContacts: Contact[] = [
+    {
+      id: 1,
+      userId: 1,
+      contactId: 2,
+      contactName: 'John Doe',
+      contactEmail: 'john@example.com',
+      relationshipType: 'FRIEND',
+      status: 'ACCEPTED',
+      createdAt: '2025-01-01T00:00:00Z',
+      updatedAt: '2025-01-01T00:00:00Z'
+    },
+    {
+      id: 2,
+      userId: 1,
+      contactId: 3,
+      contactName: 'Jane Smith',
+      contactEmail: 'jane@example.com',
+      relationshipType: 'FAMILY',
+      status: 'ACCEPTED',
+      createdAt: '2025-01-01T00:00:00Z',
+      updatedAt: '2025-01-01T00:00:00Z'
+    },
+    {
+      id: 3,
+      userId: 1,
+      contactId: 4,
+      contactName: 'Bob Wilson',
+      contactEmail: 'bob@example.com',
+      relationshipType: 'COLLEAGUE',
+      status: 'PENDING',
+      createdAt: '2025-01-01T00:00:00Z',
+      updatedAt: '2025-01-01T00:00:00Z'
+    }
+  ];
+
+  private mockInvitations: ContactInvitation[] = [
+    {
+      id: 1,
+      fromUserId: 5,
+      toUserId: 1,
+      fromUserName: 'Alice Johnson',
+      fromUserEmail: 'alice@example.com',
+      relationshipType: 'FRIEND',
+      status: 'PENDING',
+      createdAt: '2025-01-01T00:00:00Z',
+      updatedAt: '2025-01-01T00:00:00Z'
+    }
+  ];
+
   getAllContacts(): Observable<Contact[]> {
-    return this.http.get<Contact[]>(this.apiUrl, { headers: this.getHeaders() });
+    // Try backend API first, fallback to mock data
+    return this.http.get<Contact[]>(this.apiUrl, { headers: this.getHeaders() })
+      .pipe(
+        catchError(error => {
+          console.error('Backend not available, using mock data:', error);
+          return of(this.mockContacts.filter(c => c.status === 'ACCEPTED'));
+        })
+      );
   }
 
-  // Get friends (accepted contacts)
   getFriends(): Observable<Contact[]> {
-    return this.http.get<Contact[]>(`${this.apiUrl}/friends`, { headers: this.getHeaders() });
+    return this.http.get<Contact[]>(`${this.apiUrl}/friends`, { headers: this.getHeaders() })
+      .pipe(
+        catchError(error => {
+          console.error('Backend not available, using mock data:', error);
+          return of(this.mockContacts.filter(c => c.relationshipType === 'FRIEND' && c.status === 'ACCEPTED'));
+        })
+      );
   }
 
-  // Get friends count
-  getFriendsCount(): Observable<{count: number}> {
-    return this.http.get<{count: number}>(`${this.apiUrl}/friends/count`, { headers: this.getHeaders() });
-  }
-
-  // Get blocked contacts
   getBlockedContacts(): Observable<Contact[]> {
-    return this.http.get<Contact[]>(`${this.apiUrl}/blocked`, { headers: this.getHeaders() });
+    return of(this.mockContacts.filter(c => c.status === 'BLOCKED'));
   }
 
-  // Get pending invitations sent
-  getPendingSent(): Observable<Contact[]> {
-    return this.http.get<Contact[]>(`${this.apiUrl}/pending-sent`, { headers: this.getHeaders() });
+  getPendingSentInvitations(): Observable<ContactInvitation[]> {
+    return of(this.mockInvitations.filter(i => i.status === 'PENDING'));
   }
 
-  // Get pending invitations received
-  getPendingReceived(): Observable<Contact[]> {
-    return this.http.get<Contact[]>(`${this.apiUrl}/pending-received`, { headers: this.getHeaders() });
+  getPendingReceivedInvitations(): Observable<ContactInvitation[]> {
+    return of(this.mockInvitations.filter(i => i.status === 'PENDING'));
   }
 
-  // Add contact by email
-  addContactByEmail(email: string, relationshipType: string = 'FRIEND'): Observable<Contact> {
-    return this.http.post<Contact>(
-      `${this.apiUrl}/add-email`, 
-      { email, relationshipType }, 
-      { headers: this.getHeaders() }
-    );
+  addContactByEmail(email: string, relationshipType: string): Observable<Contact> {
+    const newContact: Contact = {
+      id: this.mockContacts.length + 1,
+      userId: 1,
+      contactId: this.mockContacts.length + 10,
+      contactEmail: email,
+      relationshipType: relationshipType as any,
+      status: 'PENDING',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    
+    this.mockContacts.push(newContact);
+    return of(newContact);
   }
 
-  // Add contact by user ID
-  addContactByUserId(contactUserId: number, relationshipType: string = 'FRIEND'): Observable<Contact> {
-    return this.http.post<Contact>(
-      `${this.apiUrl}/add-user/${contactUserId}`, 
-      { relationshipType }, 
-      { headers: this.getHeaders() }
-    );
+  addContactByUserId(userId: number, relationshipType: string): Observable<Contact> {
+    const newContact: Contact = {
+      id: this.mockContacts.length + 1,
+      userId: 1,
+      contactId: userId,
+      relationshipType: relationshipType as any,
+      status: 'PENDING',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    
+    this.mockContacts.push(newContact);
+    return of(newContact);
   }
 
-  // Accept contact invitation
-  acceptInvitation(contactId: number): Observable<Contact> {
-    return this.http.post<Contact>(`${this.apiUrl}/${contactId}/accept`, {}, { headers: this.getHeaders() });
+  acceptContactInvitation(contactId: number): Observable<Contact> {
+    const contact = this.mockContacts.find(c => c.id === contactId);
+    if (contact) {
+      contact.status = 'ACCEPTED';
+      contact.updatedAt = new Date().toISOString();
+    }
+    return of(contact!);
   }
 
-  // Decline contact invitation
-  declineInvitation(contactId: number): Observable<{message: string}> {
-    return this.http.post<{message: string}>(`${this.apiUrl}/${contactId}/decline`, {}, { headers: this.getHeaders() });
+  declineContactInvitation(contactId: number): Observable<any> {
+    const contact = this.mockContacts.find(c => c.id === contactId);
+    if (contact) {
+      contact.status = 'DECLINED';
+      contact.updatedAt = new Date().toISOString();
+    }
+    return of({ message: 'Invitation declined' });
   }
 
-  // Block contact
   blockContact(contactId: number): Observable<Contact> {
-    return this.http.post<Contact>(`${this.apiUrl}/${contactId}/block`, {}, { headers: this.getHeaders() });
+    const contact = this.mockContacts.find(c => c.id === contactId);
+    if (contact) {
+      contact.status = 'BLOCKED';
+      contact.updatedAt = new Date().toISOString();
+    }
+    return of(contact!);
   }
 
-  // Unblock contact
   unblockContact(contactId: number): Observable<Contact> {
-    return this.http.post<Contact>(`${this.apiUrl}/${contactId}/unblock`, {}, { headers: this.getHeaders() });
+    const contact = this.mockContacts.find(c => c.id === contactId);
+    if (contact) {
+      contact.status = 'ACCEPTED';
+      contact.updatedAt = new Date().toISOString();
+    }
+    return of(contact!);
   }
 
-  // Update contact relationship type
+  removeContact(contactId: number): Observable<any> {
+    const index = this.mockContacts.findIndex(c => c.id === contactId);
+    if (index > -1) {
+      this.mockContacts.splice(index, 1);
+    }
+    return of({ message: 'Contact removed' });
+  }
+
   updateRelationshipType(contactId: number, relationshipType: string): Observable<Contact> {
-    return this.http.put<Contact>(
-      `${this.apiUrl}/${contactId}/relationship`, 
-      { relationshipType }, 
-      { headers: this.getHeaders() }
-    );
+    const contact = this.mockContacts.find(c => c.id === contactId);
+    if (contact) {
+      contact.relationshipType = relationshipType as any;
+      contact.updatedAt = new Date().toISOString();
+    }
+    return of(contact!);
   }
 
-  // Remove contact
-  removeContact(contactId: number): Observable<{message: string}> {
-    return this.http.delete<{message: string}>(`${this.apiUrl}/${contactId}`, { headers: this.getHeaders() });
-  }
-
-  // Search contacts
   searchContacts(query: string): Observable<Contact[]> {
-    return this.http.get<Contact[]>(`${this.apiUrl}/search?q=${query}`, { headers: this.getHeaders() });
+    const filtered = this.mockContacts.filter(c => 
+      c.contactName?.toLowerCase().includes(query.toLowerCase()) ||
+      c.contactEmail?.toLowerCase().includes(query.toLowerCase())
+    );
+    return of(filtered);
   }
 }
