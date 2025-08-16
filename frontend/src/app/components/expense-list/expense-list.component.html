@@ -1,106 +1,304 @@
 <div class="expense-list-container">
-  <div class="header">
-    <h2>Expenses</h2>
-    <div class="header-controls">
-      <mat-form-field appearance="outline" class="group-selector">
-        <mat-label>Select Group</mat-label>
-        <mat-select [(value)]="selectedGroupId" (selectionChange)="onGroupChange()">
-          <mat-option *ngFor="let group of groups" [value]="group.id">
-            {{ group.name }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-      
-      <button mat-raised-button color="primary" 
+  <!-- Header Section -->
+  <div class="page-header">
+    <div class="header-content">
+      <h2>Expenses</h2>
+      <p class="subtitle">Track and manage your shared expenses</p>
+    </div>
+    <div class="header-actions">
+      <button mat-raised-button 
+              class="add-expense-btn"
               (click)="openAddExpenseDialog()"
               [disabled]="!selectedGroupId">
-        <mat-icon>add</mat-icon>
+        <mat-icon>add_circle</mat-icon>
         Add Expense
       </button>
     </div>
   </div>
 
-  <div class="content" *ngIf="!loading; else loadingSpinner">
-    <div class="expenses-table" *ngIf="selectedGroupId && expenses.length > 0; else noExpenses">
-      <table mat-table [dataSource]="expenses" class="mat-elevation-z1">
-        <!-- Description Column -->
-        <ng-container matColumnDef="description">
-          <th mat-header-cell *matHeaderCellDef>Description</th>
-          <td mat-cell *matCellDef="let expense">{{ expense.description }}</td>
-        </ng-container>
+  <!-- Search and Filter Section -->
+  <div class="search-filter-section">
+    <div class="filter-row">
+      <!-- Group Selector -->
+      <mat-form-field appearance="outline" class="group-selector">
+        <mat-label>Select Group</mat-label>
+        <mat-select [(value)]="selectedGroupId" (selectionChange)="onGroupChange()">
+          <mat-option value="">All Groups</mat-option>
+          <mat-option *ngFor="let group of groups" [value]="group.id">
+            <div class="group-option">
+              <div class="group-avatar">{{ getGroupInitials(group.name) }}</div>
+              <div class="group-details">
+                <div class="group-name">{{ group.name }}</div>
+                <div class="group-members">{{ group.members?.length || 0 }} members</div>
+              </div>
+            </div>
+          </mat-option>
+        </mat-select>
+        <mat-icon matSuffix>groups</mat-icon>
+      </mat-form-field>
 
-        <!-- Amount Column -->
-        <ng-container matColumnDef="amount">
-          <th mat-header-cell *matHeaderCellDef>Amount</th>
-          <td mat-cell *matCellDef="let expense">{{ formatCurrency(expense.amount) }}</td>
-        </ng-container>
+      <!-- Search Field -->
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search expenses</mat-label>
+        <input matInput 
+               [(ngModel)]="searchQuery"
+               (input)="onSearch()"
+               placeholder="Search by description, amount, or person">
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
 
-        <!-- Paid By Column -->
-        <ng-container matColumnDef="paidBy">
-          <th mat-header-cell *matHeaderCellDef>Paid By</th>
-          <td mat-cell *matCellDef="let expense">
-            {{ expense.paidBy?.firstName }} {{ expense.paidBy?.lastName }}
-          </td>
-        </ng-container>
+      <!-- Date Range Filter -->
+      <mat-form-field appearance="outline" class="date-field">
+        <mat-label>Date Range</mat-label>
+        <mat-date-range-input [rangePicker]="picker">
+          <input matStartDate [(ngModel)]="dateRange.start" placeholder="Start date">
+          <input matEndDate [(ngModel)]="dateRange.end" placeholder="End date">
+        </mat-date-range-input>
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-date-range-picker #picker></mat-date-range-picker>
+      </mat-form-field>
+    </div>
 
-        <!-- Split Type Column -->
-        <ng-container matColumnDef="splitType">
-          <th mat-header-cell *matHeaderCellDef>Split Type</th>
-          <td mat-cell *matCellDef="let expense">{{ expense.splitType }}</td>
-        </ng-container>
+    <!-- Filter Toggles -->
+    <div class="filter-toggles">
+      <mat-button-toggle-group [(value)]="selectedFilter" (change)="onFilterChange()">
+        <mat-button-toggle value="all">All Expenses</mat-button-toggle>
+        <mat-button-toggle value="paid">I Paid</mat-button-toggle>
+        <mat-button-toggle value="owe">I Owe</mat-button-toggle>
+        <mat-button-toggle value="settled">Settled</mat-button-toggle>
+      </mat-button-toggle-group>
 
-        <!-- Date Column -->
-        <ng-container matColumnDef="date">
-          <th mat-header-cell *matHeaderCellDef>Date</th>
-          <td mat-cell *matCellDef="let expense">{{ formatDate(expense.date!) }}</td>
-        </ng-container>
-
-        <!-- Actions Column -->
-        <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef>Actions</th>
-          <td mat-cell *matCellDef="let expense">
-            <button mat-icon-button color="warn" (click)="deleteExpense(expense.id!)" 
-                    matTooltip="Delete Expense">
-              <mat-icon>delete</mat-icon>
-            </button>
-          </td>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-      </table>
-
-      <div class="expense-details" *ngFor="let expense of expenses">
-        <div class="expense-shares" *ngIf="expense.shares && expense.shares.length > 0">
-          <strong>Split Details:</strong> {{ getExpenseShares(expense) }}
-        </div>
+      <div class="sort-controls">
+        <mat-form-field appearance="outline" class="sort-field">
+          <mat-label>Sort by</mat-label>
+          <mat-select [(value)]="sortBy" (selectionChange)="onSortChange()">
+            <mat-option value="date">Date</mat-option>
+            <mat-option value="amount">Amount</mat-option>
+            <mat-option value="description">Description</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <button mat-icon-button 
+                class="sort-direction-btn"
+                (click)="toggleSortDirection()"
+                [matTooltip]="sortDirection === 'asc' ? 'Sort Ascending' : 'Sort Descending'">
+          <mat-icon>{{ sortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+        </button>
       </div>
     </div>
   </div>
 
+  <!-- Content Area -->
+  <div class="content" *ngIf="!loading; else loadingSpinner">
+    <!-- Expense Summary Cards -->
+    <div class="expense-summary" *ngIf="selectedGroupId">
+      <div class="summary-cards">
+        <div class="summary-card positive">
+          <div class="card-header">
+            <mat-icon>trending_up</mat-icon>
+            <span class="card-title">You Are Owed</span>
+          </div>
+          <div class="card-amount">{{ formatCurrency(summary.youAreOwed) }}</div>
+        </div>
+        
+        <div class="summary-card negative">
+          <div class="card-header">
+            <mat-icon>trending_down</mat-icon>
+            <span class="card-title">You Owe</span>
+          </div>
+          <div class="card-amount">{{ formatCurrency(summary.youOwe) }}</div>
+        </div>
+
+        <div class="summary-card" [ngClass]="summary.netBalance >= 0 ? 'positive' : 'negative'">
+          <div class="card-header">
+            <mat-icon>account_balance</mat-icon>
+            <span class="card-title">Net Balance</span>
+          </div>
+          <div class="card-amount">{{ formatCurrency(summary.netBalance) }}</div>
+        </div>
+
+        <div class="summary-card neutral">
+          <div class="card-header">
+            <mat-icon>receipt_long</mat-icon>
+            <span class="card-title">Total Expenses</span>
+          </div>
+          <div class="card-amount">{{ formatCurrency(summary.totalExpenses) }}</div>
+          <div class="card-subtitle">{{ filteredExpenses.length }} expenses</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Expenses List -->
+    <div class="expenses-content" *ngIf="filteredExpenses.length > 0; else noExpenses">
+      <div class="expenses-grid">
+        <div *ngFor="let expense of paginatedExpenses; trackBy: trackExpenseById" 
+             class="expense-card"
+             [ngClass]="getExpenseCardClass(expense)">
+          
+          <!-- Card Header -->
+          <div class="expense-header">
+            <div class="expense-icon">
+              <mat-icon>{{ getExpenseIcon(expense.category) }}</mat-icon>
+            </div>
+            <div class="expense-info">
+              <h3 class="expense-description">{{ expense.description }}</h3>
+              <div class="expense-meta">
+                <span class="expense-date">{{ formatDate(expense.date!) }}</span>
+                <span class="separator">•</span>
+                <span class="expense-group">{{ getGroupName(expense.groupId) }}</span>
+              </div>
+            </div>
+            <div class="expense-menu">
+              <button mat-icon-button [matMenuTriggerFor]="expenseMenu" class="menu-btn">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+              <mat-menu #expenseMenu="matMenu">
+                <button mat-menu-item (click)="editExpense(expense)">
+                  <mat-icon>edit</mat-icon>
+                  Edit Expense
+                </button>
+                <button mat-menu-item (click)="duplicateExpense(expense)">
+                  <mat-icon>content_copy</mat-icon>
+                  Duplicate
+                </button>
+                <mat-divider></mat-divider>
+                <button mat-menu-item (click)="deleteExpense(expense.id!)" class="delete-option">
+                  <mat-icon>delete</mat-icon>
+                  Delete
+                </button>
+              </mat-menu>
+            </div>
+          </div>
+
+          <!-- Amount and Status -->
+          <div class="expense-amount-section">
+            <div class="total-amount">
+              <span class="amount-label">Total</span>
+              <span class="amount-value">{{ formatCurrency(expense.amount) }}</span>
+            </div>
+            <div class="paid-by">
+              <span class="paid-label">Paid by</span>
+              <span class="paid-person">{{ getPaidByName(expense) }}</span>
+            </div>
+          </div>
+
+          <!-- Split Information -->
+          <div class="split-info" *ngIf="expense.shares && expense.shares.length > 0">
+            <div class="split-header">
+              <mat-icon class="split-icon">pie_chart</mat-icon>
+              <span class="split-label">Split {{ expense.shares.length }} ways</span>
+              <span class="split-type">({{ formatSplitType(expense.splitType) }})</span>
+            </div>
+            
+            <div class="participant-chips">
+              <mat-chip-set>
+                <mat-chip *ngFor="let share of expense.shares.slice(0, 3)"
+                         [highlighted]="isCurrentUser(share.userId)"
+                         [color]="isCurrentUser(share.userId) ? 'accent' : 'primary'">
+                  <div class="chip-content">
+                    <span class="participant-name">{{ getParticipantName(share.userId) }}</span>
+                    <span class="participant-amount">{{ formatCurrency(share.amount) }}</span>
+                  </div>
+                </mat-chip>
+                <mat-chip *ngIf="expense.shares.length > 3" 
+                         (click)="showAllParticipants(expense)"
+                         class="more-chip">
+                  +{{ expense.shares.length - 3 }} more
+                </mat-chip>
+              </mat-chip-set>
+            </div>
+          </div>
+
+          <!-- Settlement Status -->
+          <div class="settlement-status">
+            <div class="status-indicator" [ngClass]="getSettlementStatus(expense)">
+              <mat-icon>{{ getSettlementIcon(expense) }}</mat-icon>
+              <span>{{ getSettlementText(expense) }}</span>
+            </div>
+            <div class="your-share">
+              <span class="share-label">Your share:</span>
+              <span class="share-amount" [ngClass]="getYourShareClass(expense)">
+                {{ formatCurrency(getYourShare(expense)) }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="expense-actions" *ngIf="!isExpenseSettled(expense)">
+            <button mat-button 
+                    class="action-btn secondary-action"
+                    (click)="settleExpense(expense)"
+                    *ngIf="canSettleExpense(expense)">
+              <mat-icon>handshake</mat-icon>
+              Settle Up
+            </button>
+            <button mat-button 
+                    class="action-btn primary-action"
+                    (click)="remindParticipants(expense)"
+                    *ngIf="canRemindParticipants(expense)">
+              <mat-icon>notifications</mat-icon>
+              Remind
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination-section" *ngIf="totalPages > 1">
+        <mat-paginator 
+          [length]="filteredExpenses.length"
+          [pageSize]="pageSize"
+          [pageSizeOptions]="[10, 20, 50]"
+          [pageIndex]="currentPage"
+          (page)="onPageChange($event)"
+          showFirstLastButtons>
+        </mat-paginator>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Spinner -->
   <ng-template #loadingSpinner>
     <div class="loading-container">
-      <mat-spinner></mat-spinner>
+      <mat-spinner diameter="50"></mat-spinner>
       <p>Loading expenses...</p>
     </div>
   </ng-template>
 
+  <!-- Empty States -->
   <ng-template #noExpenses>
-    <div class="no-expenses" *ngIf="selectedGroupId; else noGroupSelected">
-      <mat-icon class="no-expenses-icon">receipt</mat-icon>
+    <div class="empty-state" *ngIf="selectedGroupId && searchQuery === ''; else searchNoResults">
+      <div class="empty-icon">
+        <mat-icon>receipt_long</mat-icon>
+      </div>
       <h3>No expenses yet</h3>
-      <p>Start adding expenses to this group to track shared costs.</p>
-      <button mat-raised-button color="primary" (click)="openAddExpenseDialog()">
+      <p>Start adding expenses to track your shared costs with this group.</p>
+      <button mat-raised-button 
+              class="create-first-expense-btn"
+              (click)="openAddExpenseDialog()">
+        <mat-icon>add_circle</mat-icon>
         Add Your First Expense
       </button>
     </div>
-  </ng-template>
 
-  <ng-template #noGroupSelected>
-    <div class="no-group-selected">
-      <mat-icon class="no-group-icon">group</mat-icon>
-      <h3>Select a Group</h3>
-      <p>Choose a group from the dropdown above to view and manage expenses.</p>
-    </div>
+    <ng-template #searchNoResults>
+      <div class="empty-state" *ngIf="searchQuery !== ''; else selectGroup">
+        <div class="empty-icon">
+          <mat-icon>search_off</mat-icon>
+        </div>
+        <h3>No expenses found</h3>
+        <p>Try adjusting your search criteria or filters.</p>
+        <button mat-button (click)="clearSearch()">Clear Search</button>
+      </div>
+    </ng-template>
+
+    <ng-template #selectGroup>
+      <div class="empty-state">
+        <div class="empty-icon">
+          <mat-icon>groups</mat-icon>
+        </div>
+        <h3>Select a Group</h3>
+        <p>Choose a group from the dropdown above to view and manage expenses.</p>
+      </div>
+    </ng-template>
   </ng-template>
 </div>

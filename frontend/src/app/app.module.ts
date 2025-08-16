@@ -28,6 +28,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 import { AppComponent } from './app.component';
 import { LoginComponent } from './components/login/login.component';
@@ -90,7 +93,10 @@ import { AppRoutingModule } from './app-routing.module';
     MatTooltipModule,
     MatExpansionModule,
     MatGridListModule,
-    MatDividerModule
+    MatDividerModule,
+    MatButtonToggleModule,
+    MatProgressBarModule,
+    MatCheckboxModule
   ],
   providers: [
     {

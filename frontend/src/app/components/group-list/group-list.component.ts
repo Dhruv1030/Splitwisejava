@@ -26,8 +26,11 @@ interface MockGroup {
 })
 export class GroupListComponent implements OnInit {
   groups: MockGroup[] = [];
+  filteredGroups: MockGroup[] = [];
   currentUser: User | null = null;
   loading = false;
+  searchTerm = '';
+  selectedFilter = 'all';
 
   constructor(
     private groupService: GroupService,
@@ -44,26 +47,26 @@ export class GroupListComponent implements OnInit {
   loadGroups(): void {
     this.loading = true;
     
-    // Mock data for now - replace with real API call later
+    // Simulate API call with timeout
     setTimeout(() => {
       this.groups = [
         {
           id: 1,
-          name: 'Roommates',
-          description: 'Apartment expenses and utilities',
+          name: 'Weekend Trip',
+          description: 'Our amazing weekend getaway expenses',
           memberCount: 4,
-          totalExpenses: 1250.75,
-          yourBalance: -125.50,
+          totalExpenses: 524.80,
+          yourBalance: -60.25,
           createdAt: '2025-01-15',
-          iconUrl: 'https://via.placeholder.com/40?text=🏠'
+          iconUrl: 'https://via.placeholder.com/40?text=�️'
         },
         {
           id: 2,
-          name: 'Weekend Trip',
-          description: 'Vacation expenses for our group trip',
-          memberCount: 6,
-          totalExpenses: 2840.25,
-          yourBalance: 245.80,
+          name: 'Trip to Paris',
+          description: 'European vacation expenses',
+          memberCount: 3,
+          totalExpenses: 1240.50,
+          yourBalance: 125.75,
           createdAt: '2025-02-01',
           iconUrl: 'https://via.placeholder.com/40?text=✈️'
         },
@@ -78,23 +81,70 @@ export class GroupListComponent implements OnInit {
           iconUrl: 'https://via.placeholder.com/40?text=🍽️'
         }
       ];
+      this.filteredGroups = [...this.groups];
       this.loading = false;
     }, 1000);
+  }
 
-    // TODO: Replace with real API call
-    /*
-    this.groupService.getUserGroups().subscribe({
-      next: (groups) => {
-        this.groups = groups;
-        this.loading = false;
-      },
-      error: (error) => {
-        console.error('Error loading groups:', error);
-        this.snackBar.open('Error loading groups', 'Close', { duration: 3000 });
-        this.loading = false;
-      }
-    });
-    */
+  filterGroups(): void {
+    let filtered = this.groups;
+
+    // Apply search filter
+    if (this.searchTerm.trim()) {
+      const term = this.searchTerm.toLowerCase();
+      filtered = filtered.filter(group => 
+        group.name.toLowerCase().includes(term) ||
+        (group.description && group.description.toLowerCase().includes(term))
+      );
+    }
+
+    // Apply status filter
+    switch (this.selectedFilter) {
+      case 'active':
+        filtered = filtered.filter(group => group.yourBalance !== 0);
+        break;
+      case 'settled':
+        filtered = filtered.filter(group => group.yourBalance === 0);
+        break;
+      default:
+        // 'all' - no additional filtering
+        break;
+    }
+
+    this.filteredGroups = filtered;
+  }
+
+  clearSearch(): void {
+    this.searchTerm = '';
+    this.filterGroups();
+  }
+
+  getGroupInitials(name: string): string {
+    return name
+      .split(' ')
+      .map(word => word.charAt(0))
+      .join('')
+      .substring(0, 2)
+      .toUpperCase();
+  }
+
+  getBalanceClass(balance: number): string {
+    if (balance > 0) return 'positive';
+    if (balance < 0) return 'negative';
+    return 'neutral';
+  }
+
+  getSettlementPercentage(group: MockGroup): number {
+    // Mock calculation - in real app, this would be based on actual settlement data
+    if (group.yourBalance === 0) return 100;
+    return Math.max(0, Math.min(100, 75 - Math.abs(group.yourBalance)));
+  }
+
+  formatCurrency(amount: number): string {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD'
+    }).format(amount);
   }
 
   onCreateGroup(): void {
@@ -121,6 +171,21 @@ export class GroupListComponent implements OnInit {
   onGroupClick(group: MockGroup): void {
     this.snackBar.open(`Opening ${group.name} details...`, 'Close', { duration: 2000 });
     // TODO: Navigate to group details
+  }
+
+  onViewExpenses(group: MockGroup): void {
+    this.snackBar.open(`Viewing expenses for ${group.name}...`, 'Close', { duration: 2000 });
+    // TODO: Navigate to expenses view for this group
+  }
+
+  onEditGroup(group: MockGroup): void {
+    this.snackBar.open(`Edit group feature coming soon!`, 'Close', { duration: 2000 });
+    // TODO: Open edit group dialog
+  }
+
+  onShareGroup(group: MockGroup): void {
+    this.snackBar.open(`Share group feature coming soon!`, 'Close', { duration: 2000 });
+    // TODO: Open share group dialog
   }
 
   onSettleUp(group: MockGroup): void {

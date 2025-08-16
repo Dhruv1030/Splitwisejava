@@ -13,6 +13,7 @@ export class DashboardComponent implements OnInit {
   currentUser: User | null = null;
   selectedTab = 'groups';
   isDarkMode = false;
+  sidebarCollapsed = false;
 
   constructor(
     private authService: AuthService,
@@ -32,6 +33,10 @@ export class DashboardComponent implements OnInit {
 
   onTabChange(tab: string): void {
     this.selectedTab = tab;
+  }
+
+  toggleSidebar(): void {
+    this.sidebarCollapsed = !this.sidebarCollapsed;
   }
 
   logout(): void {
